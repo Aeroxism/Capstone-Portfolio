@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TALA LINK – Capstone Portfolio</title>
+    <meta name="description" content="TALA LINK: Patient Information Management and Medical Personnel Scheduling System – Capstone Portfolio" />
+    <link rel="icon" href="qcu.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0e12;
+            --panel: #12161c;
+            --muted: #9aa7b2;
+            --text: #eaf0f6;
+            --primary: #16a34a; /* emerald */
+            --primary-700: #0f7a38;
+            --accent: #22d3ee; /* cyan */
+            --border: #1f2732;
+            --shadow: 0 10px 30px rgba(0,0,0,0.35);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --maxw: 1100px;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: radial-gradient(1400px 800px at 80% -200px, rgba(34,211,238,0.15), transparent 60%),
+                                    radial-gradient(1000px 600px at -100px -300px, rgba(22,163,74,0.15), transparent 60%),
+                                    var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Header & Nav */
+        header {
+            position: sticky; top: 0; z-index: 50;
+            backdrop-filter: saturate(1.2) blur(10px);
+            background: rgba(11,14,18,0.6);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav {
+            max-width: var(--maxw);
+            margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 22px;
+        }
+        .brand {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 700; letter-spacing: 0.3px;
+        }
+        .brand .logo {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            box-shadow: var(--shadow);
+        }
+        .nav ul { list-style: none; display: flex; gap: 18px; padding: 0; margin: 0; }
+        .nav a { color: var(--text); font-weight: 500; opacity: 0.9; }
+        .nav a:hover { color: white; opacity: 1; }
+
+        /* Hero */
+        .hero {
+            max-width: var(--maxw);
+            margin: 48px auto 24px;
+            padding: 24px;
+            display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;
+        }
+        .card {
+            background: linear-gradient(180deg, rgba(18,22,28,0.9), rgba(18,22,28,0.75));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 26px;
+        }
+        .eyebrow { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12rem; font-size: 0.8rem; }
+        .title { font-size: clamp(1.8rem, 3.6vw, 2.6rem); margin: 8px 0 12px; line-height: 1.2; }
+        .subtitle { color: var(--muted); font-size: 1rem; }
+        .cta {
+            margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
+            padding: 10px 16px; border: 1px solid var(--border); cursor: pointer;
+            background: #0e1318; color: var(--text);
+        }
+        .btn.primary { background: linear-gradient(135deg, var(--primary-700), var(--primary)); border-color: transparent; }
+        .btn:hover { filter: brightness(1.1); }
+
+        /* Sections */
+        section { max-width: var(--maxw); margin: 16px auto; padding: 0 24px; }
+        .section-card { margin-top: 12px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+        .kpi .item { background: #0e1318; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; }
+        .kpi .item .label { color: var(--muted); font-size: 0.9rem; }
+        .kpi .item .value { font-size: 1.2rem; font-weight: 700; }
+
+        /* Accordion */
+        .accordion { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+        .acc-item + .acc-item { border-top: 1px solid var(--border); }
+        .acc-header { background: #0f1319; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .acc-header h4 { margin: 0; font-size: 1rem; }
+        .acc-content { display: none; background: #0b0f14; padding: 0 20px 16px; }
+        .acc-content.open { display: block; }
+        .acc-content ul { margin: 8px 0 0 0; padding-left: 18px; }
+
+        /* Team list */
+        .list { columns: 2; column-gap: 24px; }
+        .list li { break-inside: avoid; margin-bottom: 6px; }
+
+        /* Footer */
+        footer { border-top: 1px solid var(--border); margin-top: 36px; }
+        .foot { max-width: var(--maxw); margin: 0 auto; padding: 18px 24px; color: var(--muted); font-size: 0.95rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+        /* Responsive */
+        @media (max-width: 920px) {
+            .hero { grid-template-columns: 1fr; }
+            .grid-2, .grid-3, .kpi { grid-template-columns: 1fr; }
+            .list { columns: 1; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="nav">
+            <div class="brand">
+                <img id="qcuLogo" src="qcu.png" alt="QCU Logo" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);object-fit:cover;background:#fff" />
+                <span>Capstone</span>
+            </div>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#objectives">Objectives</a></li>
+                <li><a href="#scope">Scope</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#demo">Demo</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="card">
+            <div class="eyebrow">Capstone Project • Quezon City University • SBIT-4J</div>
+            <h1 class="title">TALA LINK: Patient Information Management and Medical Personnel Scheduling System</h1>
+            <p class="subtitle">A professional, AI-assisted web application tailored for the Pediatrics Department to streamline patient records, scheduling, queueing, and clinical support.</p>
+            <div class="cta">
+                <a class="btn primary" href="#overview">View Project</a>
+                <a class="btn" href="#contact">Request Info</a>
+                <a id="downloadPdfLink" class="btn" href="/Capstone-Portfolio/TALA_LINK_PORTFOLIO.pdf" download target="_blank" rel="noopener">Download Proposal</a>
+                <div id="downloadMessage" style="margin-top:8px;color:var(--muted)"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="kpi">
+                <div class="item"><div class="label">Department</div><div class="value">Pediatrics</div></div>
+                <div class="item"><div class="label">Adviser</div><div class="value">Mr. Geovanni Jomoc</div></div>
+                <div class="item"><div class="label">Date</div><div class="value">Dec 3, 2025</div></div>
+            </div>
+            <div style="margin-top:14px;color:var(--muted)">
+                Project Proposal • Patient-centered, secure, and efficient healthcare workflows.
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview -->
+    <section id="overview">
+        <div class="card section-card">
+            <h2>Project Overview</h2>
+            <p>
+                The system aims to assist medical facilities by improving the management of patient records, personnel schedules, and operational workflows. It integrates AI-driven tools to support clinical decision-making, queue management, risk classification, and automated documentation.
+            </p>
+            <div class="grid-2" style="margin-top:10px">
+                <div>
+                    <h3>Beneficiary Role</h3>
+                    <ul>
+                        <li>Allow us to study your current workflow</li>
+                        <li>Provide minimal participation for interviews/surveys</li>
+                        <li>Receive access to the developed system after completion</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Coordination & Ethics</h3>
+                    <ul>
+                        <li>Scheduled interviews and/or electronic communication</li>
+                        <li>Activities documented in an official Gantt chart</li>
+                        <li>Strict confidentiality and security standards</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Video -->
+    <section id="demo">
+        <div class="card section-card">
+            <h2>System Demo</h2>
+            <p style="color:var(--muted)">Watch the walkthrough of the Example system.</p>
+            <div class="card" style="padding:0;overflow:hidden">
+                <video id="demoVideo" controls playsinline controlslist="nodownload" poster="qcu.png" style="width:100%;display:block;background:#000" preload="metadata">
+                    <!-- Prefer H.264/AAC encoded MP4 for widest support -->
+                    <source id="demoSrc" src="System.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <p id="videoNotice" style="margin-top:10px;color:var(--muted)">Demo media restored — playing from project root.</p>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+        <div class="card section-card">
+            <h2>Key Features</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>Patient Information Management</h3>
+                    <p>Centralized, secure records with efficient creation, update, and retrieval.</p>
+                </div>
+                <div class="card">
+                    <h3>Personnel Scheduling</h3>
+                    <p>Interactive schedules for doctors and nurses with availability tracking.</p>
+                </div>
+                <div class="card">
+                    <h3>AI Decision Support</h3>
+                    <p>Recommendation module analyzing labs, consultations, and symptoms.</p>
+                </div>
+                <div class="card">
+                    <h3>Queueing System</h3>
+                    <p>Organized waiting lists and bed assignment to manage patient flow.</p>
+                </div>
+                <div class="card">
+                    <h3>Risk Classification</h3>
+                    <p>Classifies low, moderate, high risk to prioritize clinical attention.</p>
+                </div>
+                <div class="card">
+                    <h3>Chatbot & Docs</h3>
+                    <p>Assistance via chatbot; generate medical certificates and slips.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Objectives -->
+    <section id="objectives">
+        <div class="card section-card">
+            <h2>Objectives of the Study</h2>
+            <div class="accordion" id="obj-acc">
+                <div class="acc-item">
+                    <div class="acc-header"><h4>Main Objective</h4><span>+</span></div>
+                    <div class="acc-content">
+                        <p>
+                            Develop a patient-centered web application for the Pediatrics Department of Tala Medical Hospital to organize patient data, enhance personnel scheduling, and improve care pathways through technology-driven approaches.
+                        </p>
+                    </div>
+                </div>
+                <div class="acc-item">
+                    <div class="acc-header"><h4>Specific Objectives</h4><span>+</span></div>
+                    <div class="acc-content">
+                        <ul>
+                            <li>Evaluate existing processes and challenges in the Pediatrics Department.</li>
+                            <li>Build a centralized and secure patient information module.</li>
+                            <li>Implement AI-driven clinical decision support via recommendations.</li>
+                            <li>Develop a queuing module for patient flow and bed assignment.</li>
+                            <li>Create a risk classifier (low/moderate/high) for prioritization.</li>
+                            <li>Provide interactive scheduling with visibility and confirmations.</li>
+                            <li>Enable printing of certificates and slips.</li>
+                            <li>Evaluate the system using TAM and ISO 25010 criteria.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scope & Delimitation -->
+    <section id="scope">
+        <div class="card section-card">
+            <h2>Scope and Delimitation</h2>
+            <div class="grid-2">
+                <div>
+                    <h3>Scope</h3>
+                    <ul>
+                        <li>Focus on Pediatrics Department of Tala Hospital (OPD, ER Triage).</li>
+                        <li>Three access levels: Nurse, Doctor, Admin (if applicable).</li>
+                        <li>AI for recommendation and chatbot modules.</li>
+                        <li>Requires internet connectivity; desktop and tablet support.</li>
+                        <li>Augments existing hospital scheduling; pediatrics-only features.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Delimitation</h3>
+                    <ul>
+                        <li>Not applied outside Pediatrics unless within admission flow.</li>
+                        <li>Excludes financials: payments, amounts, billing.</li>
+                        <li>Guidance accuracy depends on provided diagnostic/consultation data.</li>
+                        <li>No formal diagnosis or prescriptions; not a replacement for clinicians.</li>
+                        <li>Older devices may have performance limitations.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card" style="margin-top:12px">
+                <strong>Note:</strong> Objectives and features may change based on validation and consultation with the Pediatrics Department to align with operational needs and feedback.
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluation Criteria -->
+    <section>
+        <div class="card section-card">
+            <h2>Evaluation Criteria (TAM & ISO 25010)</h2>
+            <div class="grid-3">
+                <div class="card"><strong>Functionality</strong><p>Meets required pediatric workflows and modules.</p></div>
+                <div class="card"><strong>Reliability</strong><p>Stable operations and data consistency.</p></div>
+                <div class="card"><strong>Usability</strong><p>Clear UI/UX for clinical teams.</p></div>
+                <div class="card"><strong>Efficiency</strong><p>Optimized performance for daily use.</p></div>
+                <div class="card"><strong>Maintainability</strong><p>Modular and documented codebase.</p></div>
+                <div class="card"><strong>Security</strong><p>Confidentiality and access controls.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section id="team">
+        <div class="card section-card">
+            <h2>Team & Adviser</h2>
+            <p><strong>Project Adviser:</strong> Mr. Geovanni Jomoc</p>
+            <p><strong>Project Leader:</strong> Shaila Mae A. Oque</p>
+            <h3>Team Members</h3>
+            <ul class="list">
+                <li>Abe, Jean Clarisse Tenorio</li>
+                <li>Bacule, Renzo D.</li>
+                <li>Casimero, Kurt Iverson Y.</li>
+                <li>Constantino, Mateo</li>
+                <li>Cruz, Arturo Jr.</li>
+                <li>Ecleo, Erick Justin B.</li>
+                <li>Hipolito, Angel A.</li>
+                <li>Malapote, Christian James</li>
+                <li>Oque, Shaila Mae A.</li>
+                <li>Ordejon, Clarence</li>
+                <li>Perma, Lloyd G.</li>
+                <li>Reyes, Jhunel</li>
+                <li>Victoriano, Riza P.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+        <div class="card section-card">
+            <h2>Contact</h2>
+            <p>For questions, clarifications, or requests, we’re available for virtual or in-person meetings.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Email</h3>
+                    <ul>
+                        <li><a href="mailto:oqueshaila@gmail.com">oqueshaila@gmail.com</a></li>
+                        <li><a href="mailto:clarence.pinoy@gmail.com">clarence.pinoy@gmail.com</a></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Approval</h3>
+                    <p>We humbly seek your support and approval to implement our project within your institution. Your guidance and cooperation are deeply valued.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="foot">
+            <span>© 2025 TALA LINK • Quezon City University • SBIT-4J</span>
+            <span>Crafted with care for pediatric healthcare workflows.</span>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script>
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            });
+        });
+        // Accordion toggle
+        document.querySelectorAll('.acc-header').forEach(h => {
+            h.addEventListener('click', () => {
+                const content = h.parentElement.querySelector('.acc-content');
+                const open = content.classList.toggle('open');
+                h.querySelector('span').textContent = open ? '–' : '+';
+            });
+        });
+
+        // PDF download using FileSaver.js (fetches only when user clicks)
+        (function() {
+            const link = document.getElementById('downloadPdfLink');
+            const msg = document.getElementById('downloadMessage');
+            if (!link) return;
+            const tryPaths = [
+                '/TALA_LINK_PORTFOLIO.pdf',
+                '/Capstone-Portfolio/TALA_LINK_PORTFOLIO.pdf',
+                'TALA_LINK_PORTFOLIO.pdf'
+            ];
+
+            link.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (msg) msg.textContent = 'Checking file...';
+                for (const p of tryPaths) {
+                    try {
+                        const res = await fetch(p);
+                        if (!res.ok) continue;
+                        const blob = await res.blob();
+                        if (typeof saveAs === 'function') {
+                            saveAs(blob, 'TALA_LINK_PORTFOLIO.pdf');
+                        } else {
+                            // Fallback: create object URL and trigger download
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url; a.download = 'TALA_LINK_PORTFOLIO.pdf';
+                            document.body.appendChild(a); a.click(); a.remove();
+                            URL.revokeObjectURL(url);
+                        }
+                        if (msg) msg.textContent = 'Download started.';
+                        return;
+                    } catch (err) {
+                        // network or CORS error — try next path
+                    }
+                }
+                if (msg) {
+                    msg.textContent = 'File not found on server.';
+                    setTimeout(() => { msg.textContent = ''; }, 5000);
+                } else {
+                    alert('File not found on server.');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

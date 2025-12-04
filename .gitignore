@@ -1,0 +1,9 @@
+# Ignore large media files that shouldn't be pushed
+System.mp4
+# If you prefer to ignore all mp4 files, uncomment the following line
+# *.mp4
+
+# Node/IDE artifacts (optional)
+node_modules/
+.vscode/
+.DS_Store
