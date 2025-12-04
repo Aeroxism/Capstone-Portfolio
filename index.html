@@ -676,6 +676,7 @@
                 const videoPaths = [
                     'System.mp4',
                     '/System.mp4',
+                    './System.mp4',
                     'videos/System.mp4',
                     'media/System.mp4',
                     '../System.mp4'
@@ -695,11 +696,9 @@
                             if (directLink) directLink.href = path;
                             if (downloadLink) downloadLink.href = path;
                             
-                            // Update video src if direct source
-                            if (video.src) {
-                                video.src = path;
-                                video.load();
-                            }
+                            // Reload video element
+                            video.src = '';
+                            video.load();
                             
                             if (notice) {
                                 notice.textContent = 'Video ready. Tap play button to start.';
@@ -722,9 +721,6 @@
                 return false;
             }
             
-            // Check video availability on load
-            checkVideoAvailability();
-            
             // Mobile detection
             function isMobileDevice() {
                 return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -735,14 +731,17 @@
                 // Force mobile-friendly attributes
                 video.setAttribute('playsinline', '');
                 video.setAttribute('webkit-playsinline', '');
-                video.setAttribute('muted', 'true'); // Muted autoplay works better on mobile
+                video.setAttribute('x-webkit-airplay', 'allow');
+                
+                // Remove muted for better mobile experience
+                video.removeAttribute('muted');
                 
                 // Preload metadata for faster start
                 video.preload = 'metadata';
                 
                 // Update notice for mobile
                 if (notice) {
-                    notice.textContent = 'Tap play button to start. Some mobile browsers may require full screen mode.';
+                    notice.textContent = 'Tap play button to start. Tap video for full screen.';
                 }
             }
             
@@ -754,6 +753,17 @@
                     
                     // Show controls
                     video.controls = true;
+                    
+                    // Request fullscreen on mobile for better experience
+                    if (isMobileDevice() && video.requestFullscreen) {
+                        try {
+                            await video.requestFullscreen().catch(err => {
+                                console.log('Fullscreen request denied:', err);
+                            });
+                        } catch (err) {
+                            console.log('Fullscreen not available');
+                        }
+                    }
                     
                     // Try to play
                     const playPromise = video.play();
@@ -787,13 +797,6 @@
                     
                     // Show overlay again
                     overlay.classList.remove('hidden');
-                    
-                    // Update direct links based on current video source
-                    const currentSrc = video.currentSrc || video.src;
-                    if (currentSrc && directLink) {
-                        directLink.href = currentSrc;
-                        downloadLink.href = currentSrc;
-                    }
                 }
             }
             
@@ -853,12 +856,10 @@
                 }
             });
             
-            // Fallback: if video doesn't load, update links after 3 seconds
+            // Check video availability after DOM is ready
             setTimeout(() => {
-                if (!video.currentSrc || video.error) {
-                    checkVideoAvailability();
-                }
-            }, 3000);
+                checkVideoAvailability();
+            }, 1000);
             
         })();
     </script>
