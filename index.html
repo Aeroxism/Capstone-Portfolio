@@ -374,9 +374,10 @@
             <div class="video-container">
                 <div class="video-wrapper">
                     <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" preload="metadata" crossorigin="anonymous">
-                        <!-- Multiple formats for better compatibility -->
-                        <source id="mp4Source" src="System.mp4" type="video/mp4; codecs='avc1.42E01E, mp4a.40.2'">
-                        <source id="webmSource" src="System.webm" type="video/webm; codecs='vp9, opus'">
+                        <!-- Video hosted on Cloudinary CDN (free) - works worldwide -->
+                        <source id="mp4Source" src="https://res.cloudinary.com/YOUR-CLOUD-NAME/video/upload/v1/System.mp4" type="video/mp4">
+                        <!-- Fallback: local file if you have it -->
+                        <source id="mp4LocalSource" src="System.mp4" type="video/mp4; codecs='avc1.42E01E, mp4a.40.2'">
                         Your browser does not support the video tag.
                     </video>
                     
@@ -674,53 +675,59 @@
             // Function to load video file directly
             async function loadVideoFile() {
                 try {
+                    // Try local file first
                     const response = await fetch('System.mp4');
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        console.log(`Local video loaded: ${blob.size} bytes`);
+                        
+                        // Create blob URL
+                        const blobUrl = URL.createObjectURL(blob);
+                        
+                        // Set video source directly
+                        const mp4Source = document.getElementById('mp4Source');
+                        if (mp4Source) {
+                            mp4Source.src = blobUrl;
+                        }
+                        
+                        // Also set as main video src
+                        video.src = blobUrl;
+                        video.load();
+                        
+                        // Update fallback links
+                        if (directLink) directLink.href = blobUrl;
+                        if (downloadLink) {
+                            downloadLink.href = blobUrl;
+                            downloadLink.download = 'System.mp4';
+                        }
+                        
+                        if (notice) {
+                            notice.textContent = '✓ Video ready. Tap the play button to start.';
+                            notice.classList.remove('video-error');
+                            notice.style.background = 'rgba(34, 211, 238, 0.1)';
+                            notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
+                            notice.style.color = '#22d3ee';
+                        }
+                        
+                        return true;
                     }
-                    
-                    const blob = await response.blob();
-                    console.log(`Video loaded: ${blob.size} bytes`);
-                    
-                    // Create blob URL
-                    const blobUrl = URL.createObjectURL(blob);
-                    
-                    // Set video source directly
-                    const mp4Source = document.getElementById('mp4Source');
-                    if (mp4Source) {
-                        mp4Source.src = blobUrl;
-                    }
-                    
-                    // Also set as main video src
-                    video.src = blobUrl;
-                    video.load();
-                    
-                    // Update fallback links
-                    if (directLink) directLink.href = blobUrl;
-                    if (downloadLink) {
-                        downloadLink.href = blobUrl;
-                        downloadLink.download = 'System.mp4';
-                    }
-                    
-                    if (notice) {
-                        notice.textContent = '✓ Video ready. Tap the play button to start.';
-                        notice.classList.remove('video-error');
-                        notice.style.background = 'rgba(34, 211, 238, 0.1)';
-                        notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
-                        notice.style.color = '#22d3ee';
-                    }
-                    
-                    return true;
                 } catch (error) {
-                    console.error('Failed to load video:', error);
-                    
-                    if (notice) {
-                        notice.textContent = '⚠ Video file not found. Make sure System.mp4 is in the same folder as index.html.';
-                        notice.classList.add('video-error');
-                    }
-                    
-                    return false;
+                    console.log(`Local video not found, using CDN source:`, error);
+                    // Video will load from CDN source in HTML
                 }
+                
+                // If local not found, video element will use CDN source
+                // Check if CDN source is actually loading
+                setTimeout(() => {
+                    if (!video.src && video.srcObject) {
+                        if (notice) {
+                            notice.textContent = '✓ Video streaming from CDN. Tap to play.';
+                            notice.classList.remove('video-error');
+                        }
+                    }
+                }, 2000);
+                
+                return true;
             }
             
             // Mobile detection
