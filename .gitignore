@@ -1,5 +1,5 @@
 # Ignore large media files that shouldn't be pushed
-System.mp4
+# (System.mp4 will be tracked with Git LFS instead)
 # If you prefer to ignore all mp4 files, uncomment the following line
 # *.mp4
 
