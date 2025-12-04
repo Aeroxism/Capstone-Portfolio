@@ -1,1051 +1,980 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Analysis Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TALA LINK – Capstone Portfolio</title>
+    <meta name="description" content="TALA LINK: Patient Information Management and Medical Personnel Scheduling System – Capstone Portfolio" />
+    <meta name="theme-color" content="#0b0e12">
+    <link rel="icon" href="qcu.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #64748b;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --light: #f8fafc;
-            --dark: #1e293b;
-            --card-bg: #ffffff;
-            --sidebar-bg: #f1f5f9;
+            --bg: #0b0e12;
+            --panel: #12161c;
+            --muted: #9aa7b2;
+            --text: #eaf0f6;
+            --primary: #16a34a;
+            --primary-700: #0f7a38;
+            --accent: #22d3ee;
+            --border: #1f2732;
+            --shadow: 0 10px 30px rgba(0,0,0,0.35);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --maxw: 1100px;
         }
-
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
         body {
-            background-color: #f1f5f9;
-            color: var(--dark);
-            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: radial-gradient(1400px 800px at 80% -200px, rgba(34,211,238,0.15), transparent 60%),
+                        radial-gradient(1000px 600px at -100px -300px, rgba(22,163,74,0.15), transparent 60%),
+                        var(--bg);
+            color: var(--text);
+            line-height: 1.6;
         }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Header & Nav */
+        header {
+            position: sticky; top: 0; z-index: 50;
+            backdrop-filter: saturate(1.2) blur(10px);
+            background: rgba(11,14,18,0.6);
+            border-bottom: 1px solid var(--border);
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .nav {
+            max-width: var(--maxw);
+            margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 22px;
         }
-
-        .logo i {
-            font-size: 2rem;
+        .brand {
+            display: flex; align-items: center; gap: 12px;
+            font-weight: 700; letter-spacing: 0.3px;
         }
-
-        .logo h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .brand .logo {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            box-shadow: var(--shadow);
         }
-
-        .last-update {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        /* Container */
-        .container {
-            display: flex;
-            min-height: calc(100vh - 80px);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 300px;
-            background-color: var(--sidebar-bg);
-            padding: 1.5rem;
-            border-right: 1px solid #e2e8f0;
-            overflow-y: auto;
-        }
-
-        .sidebar-section {
-            margin-bottom: 2rem;
-        }
-
-        .sidebar h2 {
-            color: var(--primary-dark);
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .sidebar h2 i {
-            font-size: 1rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .range-group {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .range-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-        }
-
-        .range-value {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 0.875rem;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-download {
-            background-color: var(--success);
-        }
-
-        .btn-download:hover {
-            background-color: #0da271;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
-        }
-
-        /* Metrics Grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .metric-card {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid var(--primary);
-            transition: transform 0.3s;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .metric-title {
-            font-size: 0.9rem;
-            color: var(--secondary);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .metric-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.25rem;
-        }
-
-        .metric-change {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .positive {
-            color: var(--success);
-        }
-
-        .negative {
-            color: var(--danger);
-        }
-
-        /* Charts */
-        .chart-container {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 2rem;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .chart-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .chart-controls {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .time-btn {
-            padding: 0.5rem 1rem;
-            background-color: var(--light);
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-
-        .time-btn.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .time-btn:hover:not(.active) {
-            background-color: #e2e8f0;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background-color: var(--light);
-            border-radius: 10px;
-            padding: 0.5rem;
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 0.875rem 1.5rem;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: 600;
-            color: var(--secondary);
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-
-        .tab.active {
-            background-color: var(--card-bg);
-            color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .tab:hover:not(.active) {
-            background-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .tab-content {
+        .nav ul { list-style: none; display: flex; gap: 18px; padding: 0; margin: 0; }
+        .nav a { color: var(--text); font-weight: 500; opacity: 0.9; }
+        .nav a:hover { color: white; opacity: 1; }
+        .menu-toggle {
             display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Data Table */
-        .data-table-container {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .table-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
             align-items: center;
+            gap: 8px;
         }
+        .menu-toggle svg { width: 20px; height: 20px; display: block; }
 
-        .table-header h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--dark);
+        /* Hero */
+        .hero {
+            max-width: var(--maxw);
+            margin: 48px auto 24px;
+            padding: 24px;
+            display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;
         }
+        .card {
+            background: linear-gradient(180deg, rgba(18,22,28,0.9), rgba(18,22,28,0.75));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 26px;
+        }
+        .eyebrow { color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12rem; font-size: 0.8rem; }
+        .title { font-size: clamp(1.8rem, 3.6vw, 2.6rem); margin: 8px 0 12px; line-height: 1.2; }
+        .subtitle { color: var(--muted); font-size: 1rem; }
+        .cta {
+            margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
+            padding: 10px 16px; border: 1px solid var(--border); cursor: pointer;
+            background: #0e1318; color: var(--text);
+            transition: all 0.2s ease;
+        }
+        .btn.primary { background: linear-gradient(135deg, var(--primary-700), var(--primary)); border-color: transparent; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+        /* Sections */
+        section { max-width: var(--maxw); margin: 16px auto; padding: 0 24px; }
+        .section-card { margin-top: 12px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+        .kpi .item { background: #0e1318; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; }
+        .kpi .item .label { color: var(--muted); font-size: 0.9rem; }
+        .kpi .item .value { font-size: 1.2rem; font-weight: 700; }
 
-        thead {
-            background-color: var(--light);
-        }
+        /* Accordion */
+        .accordion { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+        .acc-item + .acc-item { border-top: 1px solid var(--border); }
+        .acc-header { background: #0f1319; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .acc-header h4 { margin: 0; font-size: 1rem; }
+        .acc-content { display: none; background: #0b0f14; padding: 0 20px 16px; }
+        .acc-content.open { display: block; }
+        .acc-content ul { margin: 8px 0 0 0; padding-left: 18px; }
 
-        th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        tbody tr:hover {
-            background-color: #f8fafc;
-        }
+        /* Team list */
+        .list { columns: 2; column-gap: 24px; }
+        .list li { break-inside: avoid; margin-bottom: 6px; }
 
         /* Footer */
-        .footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--secondary);
-            border-top: 1px solid #e2e8f0;
-            margin-top: 2rem;
-        }
-
-        .footer p {
-            margin-bottom: 0.5rem;
-        }
-
-        .disclaimer {
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 300px;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #e2e8f0;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        footer { border-top: 1px solid var(--border); margin-top: 36px; }
+        .foot { max-width: var(--maxw); margin: 0 auto; padding: 18px 24px; color: var(--muted); font-size: 0.95rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid #e2e8f0;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        @media (max-width: 920px) {
+            .hero { grid-template-columns: 1fr; }
+            .grid-2, .grid-3, .kpi { grid-template-columns: 1fr; }
+            .list { columns: 1; }
+            .nav { padding: 10px 16px; }
+            .nav ul { display: none; position: absolute; right: 16px; top: 64px; background: rgba(11,14,18,0.95); border: 1px solid var(--border); border-radius: 10px; padding: 12px; flex-direction: column; gap: 8px; width: calc(100% - 40px); max-width: 360px; box-shadow: var(--shadow); }
+            .nav.open ul { display: flex; }
+            .menu-toggle { display: inline-flex; }
+            .brand { gap: 10px; }
+            header { position: sticky; }
+            .nav a { padding: 8px 6px; }
+        }
+        
+        /* VIDEO FIXES - SIMPLIFIED */
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin: 16px 0;
+            cursor: pointer;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+        }
+        
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+        
+        .video-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            transition: all 0.3s;
+        }
+        
+        .video-container:hover .play-overlay {
+            background: rgba(34, 211, 238, 0.8);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .video-notice {
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 8px;
+            color: #22d3ee;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* VIDEO MODAL - SIMPLIFIED */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: #12161c;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.8rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            transition: background 0.3s ease;
+            border: none;
+            padding: 0;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-body {
+            padding: 0;
+            overflow-y: auto;
+            max-height: calc(90vh - 60px);
+        }
+        
+        .modal-video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            background: #000;
         }
 
-        @media (max-width: 768px) {
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .chart-controls {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
+        .modal-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+        }
+        
+        .video-info {
+            padding: 25px;
+        }
+        
+        .video-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .video-info p {
+            color: var(--muted);
+            margin-bottom: 15px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feature i {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .feature h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        /* Download button style */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            gap: 8px;
+        }
+        
+        .download-btn:hover {
+            background-color: var(--primary-700);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        }
+        
+        .download-btn.secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        
+        .download-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent);
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <i class="fas fa-chart-line"></i>
-            <h1>Financial Analysis Dashboard</h1>
-        </div>
-        <div class="last-update">
-            Last updated: <span id="lastUpdate">Loading...</span>
-        </div>
+    <header>
+        <nav class="nav">
+            <div class="brand">
+                <div style="display: flex; align-items: center; justify-content: center; width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg, var(--primary), var(--accent));color:white;font-weight:bold;font-size:14px;">
+                    QCU
+                </div>
+                <span>Capstone</span>
+            </div>
+            <button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 6h18M3 12h18M3 18h18"></path>
+                </svg>
+            </button>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#objectives">Objectives</a></li>
+                <li><a href="#scope">Scope</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#demo">Demo</a></li>
+            </ul>
+        </nav>
     </header>
 
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <h2><i class="fas fa-cog"></i> Configuration</h2>
-                <div class="form-group">
-                    <label for="stockSymbol">Stock Symbol</label>
-                    <input type="text" id="stockSymbol" class="form-control" value="AAPL" placeholder="Enter stock symbol">
-                </div>
-                <div class="form-group">
-                    <label for="dateRange">Date Range</label>
-                    <select id="dateRange" class="form-control">
-                        <option value="1mo">1 Month</option>
-                        <option value="3mo" selected>3 Months</option>
-                        <option value="6mo">6 Months</option>
-                        <option value="1y">1 Year</option>
-                        <option value="2y">2 Years</option>
-                        <option value="5y">5 Years</option>
-                    </select>
-                </div>
+    <!-- Hero -->
+    <div class="hero">
+        <div class="card">
+            <div class="eyebrow">Capstone Project • Quezon City University • SBIT-4J</div>
+            <h1 class="title">TALA LINK: Patient Information Management and Medical Personnel Scheduling System</h1>
+            <p class="subtitle">A professional, AI-assisted web application tailored for the Pediatrics Department to streamline patient records, scheduling, queueing, and clinical support.</p>
+            <div class="cta">
+                <a class="btn primary" href="#overview">View Project</a>
+                <a class="btn" href="#contact">Request Info</a>
+                <a id="downloadPdfLink" class="btn" href="TALA_LINK_PORTFOLIO.pdf" download target="_blank" rel="noopener">Download Proposal</a>
+                <div id="downloadMessage" style="margin-top:8px;color:var(--muted)"></div>
             </div>
-
-            <div class="sidebar-section">
-                <h2><i class="fas fa-chart-bar"></i> Technical Indicators</h2>
-                <div class="form-group">
-                    <div class="range-label">
-                        <span>Short MA (days)</span>
-                        <span class="range-value" id="maShortValue">20</span>
-                    </div>
-                    <input type="range" id="maShort" class="form-control" min="5" max="50" value="20">
-                </div>
-                <div class="form-group">
-                    <div class="range-label">
-                        <span>Long MA (days)</span>
-                        <span class="range-value" id="maLongValue">50</span>
-                    </div>
-                    <input type="range" id="maLong" class="form-control" min="20" max="200" value="50">
-                </div>
-                <div class="form-group">
-                    <div class="range-label">
-                        <span>RSI Period</span>
-                        <span class="range-value" id="rsiValue">14</span>
-                    </div>
-                    <input type="range" id="rsiPeriod" class="form-control" min="5" max="30" value="14">
-                </div>
+        </div>
+        <div class="card">
+            <div class="kpi">
+                <div class="item"><div class="label">Department</div><div class="value">Pediatrics</div></div>
+                <div class="item"><div class="label">Adviser</div><div class="value">Mr. Geovanni Jomoc</div></div>
+                <div class="item"><div class="label">Date</div><div class="value">Dec 3, 2025</div></div>
             </div>
-
-            <div class="sidebar-section">
-                <h2><i class="fas fa-chart-pie"></i> Analysis Type</h2>
-                <div class="form-group">
-                    <select id="analysisType" class="form-control">
-                        <option value="technical" selected>Technical Analysis</option>
-                        <option value="fundamental">Fundamental Analysis</option>
-                        <option value="comparative">Comparative Analysis</option>
-                    </select>
-                </div>
+            <div style="margin-top:14px;color:var(--muted)">
+                Project Proposal • Patient-centered, secure, and efficient healthcare workflows.
             </div>
-
-            <div class="sidebar-section">
-                <button class="btn btn-download" id="downloadBtn">
-                    <i class="fas fa-download"></i> Download Data
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Metrics Cards -->
-            <div class="metrics-grid" id="metricsGrid">
-                <!-- Will be populated by JavaScript -->
-            </div>
-
-            <!-- Tabs -->
-            <div class="tabs">
-                <div class="tab active" data-tab="price-chart">Price Chart</div>
-                <div class="tab" data-tab="indicators">Technical Indicators</div>
-                <div class="tab" data-tab="company">Company Info</div>
-                <div class="tab" data-tab="risk">Risk Analysis</div>
-            </div>
-
-            <!-- Price Chart Tab -->
-            <div class="tab-content active" id="price-chart">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title">
-                            <i class="fas fa-chart-line"></i>
-                            <span id="chartTitle">AAPL Price Chart</span>
-                        </div>
-                        <div class="chart-controls">
-                            <button class="time-btn active" data-period="1D">1D</button>
-                            <button class="time-btn" data-period="1W">1W</button>
-                            <button class="time-btn" data-period="1M">1M</button>
-                            <button class="time-btn" data-period="3M">3M</button>
-                            <button class="time-btn" data-period="1Y">1Y</button>
-                        </div>
-                    </div>
-                    <div id="priceChart" style="height: 500px;"></div>
-                </div>
-            </div>
-
-            <!-- Technical Indicators Tab -->
-            <div class="tab-content" id="indicators">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title">
-                            <i class="fas fa-wave-square"></i>
-                            <span>Technical Indicators</span>
-                        </div>
-                    </div>
-                    <div id="indicatorsChart" style="height: 600px;"></div>
-                </div>
-            </div>
-
-            <!-- Company Info Tab -->
-            <div class="tab-content" id="company">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title">
-                            <i class="fas fa-building"></i>
-                            <span id="companyName">Apple Inc.</span>
-                        </div>
-                    </div>
-                    <div id="companyInfo">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Risk Analysis Tab -->
-            <div class="tab-content" id="risk">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>Risk Analysis</span>
-                        </div>
-                    </div>
-                    <div id="riskMetrics">
-                        <!-- Will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Data Table -->
-            <div class="data-table-container">
-                <div class="table-header">
-                    <h3>Stock Data</h3>
-                    <button class="btn" id="exportBtn">
-                        <i class="fas fa-file-export"></i> Export CSV
-                    </button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table id="dataTable">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Open</th>
-                                <th>High</th>
-                                <th>Low</th>
-                                <th>Close</th>
-                                <th>Volume</th>
-                                <th>MA (20)</th>
-                                <th>MA (50)</th>
-                                <th>RSI</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            <!-- Will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>Financial Analysis Dashboard • Data provided by Yahoo Finance • For educational purposes only</p>
-        <p class="disclaimer">Always conduct your own research before making investment decisions</p>
+    <!-- Overview -->
+    <section id="overview">
+        <div class="card section-card">
+            <h2>Project Overview</h2>
+            <p>
+                The system aims to assist medical facilities by improving the management of patient records, personnel schedules, and operational workflows. It integrates AI-driven tools to support clinical decision-making, queue management, risk classification, and automated documentation.
+            </p>
+            <div class="grid-2" style="margin-top:10px">
+                <div>
+                    <h3>Beneficiary Role</h3>
+                    <ul>
+                        <li>Allow us to study your current workflow</li>
+                        <li>Provide minimal participation for interviews/surveys</li>
+                        <li>Receive access to the developed system after completion</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Coordination & Ethics</h3>
+                    <ul>
+                        <li>Scheduled interviews and/or electronic communication</li>
+                        <li>Activities documented in an official Gantt chart</li>
+                        <li>Strict confidentiality and security standards</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Video - FIXED VERSION -->
+    <section id="demo">
+        <div class="card section-card">
+            <h2>System Demo</h2>
+            <p style="color:var(--muted)">Watch the walkthrough of the TALA LINK system.</p>
+            
+            <!-- Video Preview -->
+            <div class="video-container" id="videoPreview">
+                <div class="video-wrapper">
+                    <video class="video-preview" id="demoVideoPreview" preload="metadata" poster="thumbnail.jpg">
+                        <source src="System.mp4" type="video/mp4">
+                        <source src="mp4/System.mp4" type="video/mp4">
+                        <source src="videos/System.mp4" type="video/mp4">
+                        <source src="System.webm" type="video/webm">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="play-overlay">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="videoNotice" class="video-notice">
+                Click the video preview above to watch the full demo
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button id="playVideoBtn" class="download-btn">
+                    <i class="fas fa-play"></i> Play Full Demo Video
+                </button>
+                <button id="playVideoModalBtn" class="download-btn secondary">
+                    <i class="fas fa-expand"></i> Open in Modal
+                </button>
+                <a href="System.mp4" class="download-btn secondary" download="TALA_LINK_Demo.mp4">
+                    <i class="fas fa-download"></i> Download Video
+                </a>
+            </div>
+            
+            <!-- Video info -->
+            <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                <p><strong>Video Information:</strong></p>
+                <ul style="margin-top: 8px; padding-left: 20px; color: var(--muted);">
+                    <li>Format: MP4 (H.264)</li>
+                    <li>Size: 42.3 MB</li>
+                    <li>Duration: 5:24 minutes</li>
+                    <li>Resolution: 1920x1080 (Full HD)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+        <div class="card section-card">
+            <h2>Key Features</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>Patient Information Management</h3>
+                    <p>Centralized, secure records with efficient creation, update, and retrieval.</p>
+                </div>
+                <div class="card">
+                    <h3>Personnel Scheduling</h3>
+                    <p>Interactive schedules for doctors and nurses with availability tracking.</p>
+                </div>
+                <div class="card">
+                    <h3>AI Decision Support</h3>
+                    <p>Recommendation module analyzing labs, consultations, and symptoms.</p>
+                </div>
+                <div class="card">
+                    <h3>Queueing System</h3>
+                    <p>Organized waiting lists and bed assignment to manage patient flow.</p>
+                </div>
+                <div class="card">
+                    <h3>Risk Classification</h3>
+                    <p>Classifies low, moderate, high risk to prioritize clinical attention.</p>
+                </div>
+                <div class="card">
+                    <h3>Chatbot & Docs</h3>
+                    <p>Assistance via chatbot; generate medical certificates and slips.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects -->
+    <section id="projects">
+        <div class="card section-card">
+            <h2>Projects</h2>
+            <p style="color:var(--muted)">Selected projects and demos.</p>
+            <div class="grid-2" style="margin-top:10px">
+                <div class="card">
+                    <h3>System Demo (Video)</h3>
+                    <p>Full walkthrough video demonstrating the Patient Information Management and Medical Personnel Scheduling System.</p>
+                    <div style="text-align:center; margin-top:14px">
+                        <button id="viewDemoProjectBtn" class="btn primary">Watch Demo</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Proposal / Documentation</h3>
+                    <p>Downloadable project proposal and documentation for review.</p>
+                    <div style="text-align:center; margin-top:14px">
+                        <button id="downloadProposalBtn" class="btn">Download Proposal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Objectives -->
+    <section id="objectives">
+        <div class="card section-card">
+            <h2>Objectives of the Study</h2>
+            <div class="accordion" id="obj-acc">
+                <div class="acc-item">
+                    <div class="acc-header"><h4>Main Objective</h4><span>+</span></div>
+                    <div class="acc-content">
+                        <p>
+                            Develop a patient-centered web application for the Pediatrics Department of Tala Medical Hospital to organize patient data, enhance personnel scheduling, and improve care pathways through technology-driven approaches.
+                        </p>
+                    </div>
+                </div>
+                <div class="acc-item">
+                    <div class="acc-header"><h4>Specific Objectives</h4><span>+</span></div>
+                    <div class="acc-content">
+                        <ul>
+                            <li>Evaluate existing processes and challenges in the Pediatrics Department.</li>
+                            <li>Build a centralized and secure patient information module.</li>
+                            <li>Implement AI-driven clinical decision support via recommendations.</li>
+                            <li>Develop a queuing module for patient flow and bed assignment.</li>
+                            <li>Create a risk classifier (low/moderate/high) for prioritization.</li>
+                            <li>Provide interactive scheduling with visibility and confirmations.</li>
+                            <li>Enable printing of certificates and slips.</li>
+                            <li>Evaluate the system using TAM and ISO 25010 criteria.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scope & Delimitation -->
+    <section id="scope">
+        <div class="card section-card">
+            <h2>Scope and Delimitation</h2>
+            <div class="grid-2">
+                <div>
+                    <h3>Scope</h3>
+                    <ul>
+                        <li>Focus on Pediatrics Department of Tala Hospital (OPD, ER Triage).</li>
+                        <li>Three access levels: Nurse, Doctor, Admin (if applicable).</li>
+                        <li>AI for recommendation and chatbot modules.</li>
+                        <li>Requires internet connectivity; desktop and tablet support.</li>
+                        <li>Augments existing hospital scheduling; pediatrics-only features.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Delimitation</h3>
+                    <ul>
+                        <li>Not applied outside Pediatrics unless within admission flow.</li>
+                        <li>Excludes financials: payments, amounts, billing.</li>
+                        <li>Guidance accuracy depends on provided diagnostic/consultation data.</li>
+                        <li>No formal diagnosis or prescriptions; not a replacement for clinicians.</li>
+                        <li>Older devices may have performance limitations.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card" style="margin-top:12px">
+                <strong>Note:</strong> Objectives and features may change based on validation and consultation with the Pediatrics Department to align with operational needs and feedback.
+            </div>
+        </div>
+    </section>
+
+    <!-- Evaluation Criteria -->
+    <section>
+        <div class="card section-card">
+            <h2>Evaluation Criteria (TAM & ISO 25010)</h2>
+            <div class="grid-3">
+                <div class="card"><strong>Functionality</strong><p>Meets required pediatric workflows and modules.</p></div>
+                <div class="card"><strong>Reliability</strong><p>Stable operations and data consistency.</p></div>
+                <div class="card"><strong>Usability</strong><p>Clear UI/UX for clinical teams.</p></div>
+                <div class="card"><strong>Efficiency</strong><p>Optimized performance for daily use.</p></div>
+                <div class="card"><strong>Maintainability</strong><p>Modular and documented codebase.</p></div>
+                <div class="card"><strong>Security</strong><p>Confidentiality and access controls.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section id="team">
+        <div class="card section-card">
+            <h2>Team & Adviser</h2>
+            <p><strong>Project Adviser:</strong> Mr. Geovanni Jomoc</p>
+            <p><strong>Project Leader:</strong> Shaila Mae A. Oque</p>
+            <h3>Team Members</h3>
+            <ul class="list">
+                <li>Abe, Jean Clarisse Tenorio</li>
+                <li>Bacule, Renzo D.</li>
+                <li>Casimero, Kurt Iverson Y.</li>
+                <li>Constantino, Mateo</li>
+                <li>Cruz, Arturo Jr.</li>
+                <li>Ecleo, Erick Justin B.</li>
+                <li>Hipolito, Angel A.</li>
+                <li>Malapote, Christian James</li>
+                <li>Oque, Shaila Mae A.</li>
+                <li>Ordejon, Clarence</li>
+                <li>Perma, Lloyd G.</li>
+                <li>Reyes, Jhunel</li>
+                <li>Victoriano, Riza P.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact">
+        <div class="card section-card">
+            <h2>Contact</h2>
+            <p>For questions, clarifications, or requests, we're available for virtual or in-person meetings.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Email</h3>
+                    <ul>
+                        <li><a href="mailto:oqueshaila@gmail.com">oqueshaila@gmail.com</a></li>
+                        <li><a href="mailto:clarence.pinoy@gmail.com">clarence.pinoy@gmail.com</a></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Approval</h3>
+                    <p>We humbly seek your support and approval to implement our project within your institution. Your guidance and cooperation are deeply valued.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="foot">
+            <span>© 2025 TALA LINK • Quezon City University • SBIT-4J</span>
+            <span>Crafted with care for pediatric healthcare workflows.</span>
+        </div>
     </footer>
 
+    <!-- Video Modal -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <button class="close-btn">&times;</button>
+            <div class="modal-body">
+                <div class="modal-video-container">
+                    <video class="modal-video" id="modalVideoPlayer" controls>
+                        <source src="System.mp4" type="video/mp4">
+                        <source src="mp4/System.mp4" type="video/mp4">
+                        <source src="videos/System.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="video-info">
+                    <h3>TALA LINK System Demo</h3>
+                    <p>Full walkthrough of the Patient Information Management and Medical Personnel Scheduling System.</p>
+                    
+                    <div class="features">
+                        <div class="feature">
+                            <i class="fas fa-user-injured"></i>
+                            <h4>Patient Management</h4>
+                            <p>Complete patient record handling</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h4>Smart Scheduling</h4>
+                            <p>Efficient doctor and nurse scheduling</p>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-robot"></i>
+                            <h4>AI Assistance</h4>
+                            <p>Clinical decision support system</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Sample data for demonstration
-        const sampleData = {
-            symbol: "AAPL",
-            price: 175.34,
-            change: 2.45,
-            changePercent: 1.42,
-            volume: "45.2M",
-            marketCap: "2.75T",
-            peRatio: 29.34,
-            dividendYield: 0.55,
-            week52High: 198.23,
-            week52Low: 124.17,
-            companyName: "Apple Inc.",
-            sector: "Technology",
-            industry: "Consumer Electronics",
-            employees: "164,000",
-            country: "United States",
-            summary: "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide."
-        };
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            });
+        });
+        
+        // Accordion toggle
+        document.querySelectorAll('.acc-header').forEach(h => {
+            h.addEventListener('click', () => {
+                const content = h.parentElement.querySelector('.acc-content');
+                const open = content.classList.toggle('open');
+                h.querySelector('span').textContent = open ? '–' : '+';
+            });
+        });
 
-        // Generate sample stock data
-        function generateSampleStockData() {
-            const dates = [];
-            const prices = [];
-            let currentPrice = 150;
-            const today = new Date();
-            
-            for (let i = 90; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(today.getDate() - i);
-                dates.push(date);
-                
-                // Simulate price movement
-                const change = (Math.random() - 0.5) * 4;
-                currentPrice += change;
-                currentPrice = Math.max(140, Math.min(200, currentPrice));
-                prices.push(currentPrice);
-            }
-            
-            return { dates, prices };
-        }
-
-        // Update metrics
-        function updateMetrics() {
-            const metricsGrid = document.getElementById('metricsGrid');
-            const metrics = [
-                { title: 'Current Price', value: `$${sampleData.price.toFixed(2)}`, change: `${sampleData.changePercent}%`, positive: true },
-                { title: 'Volume', value: sampleData.volume, change: null },
-                { title: 'Market Cap', value: sampleData.marketCap, change: null },
-                { title: 'P/E Ratio', value: sampleData.peRatio.toFixed(2), change: null },
-                { title: 'Dividend Yield', value: `${sampleData.dividendYield}%`, change: null },
-                { title: '52-Week High', value: `$${sampleData.week52High.toFixed(2)}`, change: null },
-                { title: '52-Week Low', value: `$${sampleData.week52Low.toFixed(2)}`, change: null },
-                { title: 'Day Change', value: `$${sampleData.change.toFixed(2)}`, change: `${sampleData.changePercent}%`, positive: sampleData.change > 0 }
-            ];
-            
-            metricsGrid.innerHTML = metrics.map(metric => `
-                <div class="metric-card">
-                    <div class="metric-title">${metric.title}</div>
-                    <div class="metric-value">${metric.value}</div>
-                    ${metric.change ? `
-                        <div class="metric-change ${metric.positive ? 'positive' : 'negative'}">
-                            ${metric.positive ? '+' : ''}${metric.change}
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('');
-        }
-
-        // Create price chart
-        function createPriceChart() {
-            const { dates, prices } = generateSampleStockData();
-            
-            // Calculate moving averages
-            const ma20 = calculateMA(prices, 20);
-            const ma50 = calculateMA(prices, 50);
-            
-            const trace1 = {
-                x: dates,
-                y: prices,
-                mode: 'lines',
-                name: 'Price',
-                line: { color: '#2563eb', width: 2 }
-            };
-            
-            const trace2 = {
-                x: dates.slice(19),
-                y: ma20,
-                mode: 'lines',
-                name: 'MA (20)',
-                line: { color: '#f59e0b', width: 2 }
-            };
-            
-            const trace3 = {
-                x: dates.slice(49),
-                y: ma50,
-                mode: 'lines',
-                name: 'MA (50)',
-                line: { color: '#10b981', width: 2 }
-            };
-            
-            const layout = {
-                title: `${sampleData.symbol} Price Chart`,
-                xaxis: { title: 'Date' },
-                yaxis: { title: 'Price (USD)' },
-                hovermode: 'x unified',
-                showlegend: true,
-                height: 500
-            };
-            
-            Plotly.newPlot('priceChart', [trace1, trace2, trace3], layout);
-        }
-
-        // Create indicators chart
-        function createIndicatorsChart() {
-            const { dates, prices } = generateSampleStockData();
-            const rsi = calculateRSI(prices, 14);
-            const volume = prices.map(() => Math.random() * 10000000 + 5000000);
-            
-            // Create subplots
-            const fig = makeSubplots({
-                rows: 3, cols: 1,
-                subplot_titles: ['Price', 'RSI', 'Volume'],
-                vertical_spacing: 0.1,
-                row_heights: [0.5, 0.25, 0.25]
+        // Mobile menu toggle
+        (function(){
+            const menuToggle = document.querySelector('.menu-toggle');
+            const nav = document.querySelector('.nav');
+            if (!menuToggle || !nav) return;
+            menuToggle.addEventListener('click', (e) => {
+                const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+                menuToggle.setAttribute('aria-expanded', String(!expanded));
+                nav.classList.toggle('open');
             });
             
-            // Price trace
-            fig.addTrace({
-                x: dates,
-                y: prices,
-                mode: 'lines',
-                name: 'Price',
-                line: { color: '#2563eb' }
-            }, 1, 1);
-            
-            // RSI trace
-            fig.addTrace({
-                x: dates.slice(13),
-                y: rsi,
-                mode: 'lines',
-                name: 'RSI',
-                line: { color: '#8b5cf6' }
-            }, 2, 1);
-            
-            // Add RSI reference lines
-            fig.addShape({
-                type: 'line',
-                x0: dates[0],
-                x1: dates[dates.length - 1],
-                y0: 70,
-                y1: 70,
-                line: { color: '#ef4444', width: 1, dash: 'dash' }
-            }, 2, 1);
-            
-            fig.addShape({
-                type: 'line',
-                x0: dates[0],
-                x1: dates[dates.length - 1],
-                y0: 30,
-                y1: 30,
-                line: { color: '#10b981', width: 1, dash: 'dash' }
-            }, 2, 1);
-            
-            // Volume trace
-            fig.addTrace({
-                x: dates,
-                y: volume,
-                type: 'bar',
-                name: 'Volume',
-                marker: { color: '#64748b' }
-            }, 3, 1);
-            
-            // Update layout
-            fig.updateLayout({
-                height: 600,
-                showlegend: true
+            nav.querySelectorAll('a[href^="#"]').forEach(a => {
+                a.addEventListener('click', () => {
+                    nav.classList.remove('open');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                });
             });
             
-            fig.update_xaxes(title_text='Date', row=3, col=1);
-            fig.update_yaxes(title_text='Price (USD)', row=1, col=1);
-            fig.update_yaxes(title_text='RSI', row=2, col=1);
-            fig.update_yaxes(title_text='Volume', row=3, col=1);
-            
-            Plotly.newPlot('indicatorsChart', fig.data, fig.layout);
-        }
+            document.addEventListener('click', (ev) => {
+                if (!nav.contains(ev.target)) {
+                    nav.classList.remove('open');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
 
-        // Update company info
-        function updateCompanyInfo() {
-            const companyInfo = document.getElementById('companyInfo');
-            const companyName = document.getElementById('companyName');
+        // ===========================
+        // VIDEO PLAYBACK - FIXED VERSION
+        // ===========================
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoModal = document.getElementById('videoModal');
+            const modalVideoPlayer = document.getElementById('modalVideoPlayer');
+            const demoVideoPreview = document.getElementById('demoVideoPreview');
+            const playVideoBtn = document.getElementById('playVideoBtn');
+            const playVideoModalBtn = document.getElementById('playVideoModalBtn');
+            const videoPreview = document.getElementById('videoPreview');
+            const closeModalBtn = document.querySelector('.close-btn');
+            const viewDemoProjectBtn = document.getElementById('viewDemoProjectBtn');
+            const downloadProposalBtn = document.getElementById('downloadProposalBtn');
+            const notice = document.getElementById('videoNotice');
             
-            companyName.textContent = sampleData.companyName;
-            
-            companyInfo.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-                    <div>
-                        <h3 style="color: #2563eb; margin-bottom: 1rem;">Company Details</h3>
-                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                            <div><strong>Sector:</strong> ${sampleData.sector}</div>
-                            <div><strong>Industry:</strong> ${sampleData.industry}</div>
-                            <div><strong>Employees:</strong> ${sampleData.employees}</div>
-                            <div><strong>Country:</strong> ${sampleData.country}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 style="color: #2563eb; margin-bottom: 1rem;">Business Summary</h3>
-                        <p style="line-height: 1.6;">${sampleData.summary}</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Update risk metrics
-        function updateRiskMetrics() {
-            const riskMetrics = document.getElementById('riskMetrics');
-            
-            const metrics = [
-                { name: 'Volatility (σ)', value: '2.45%', status: 'medium' },
-                { name: 'Sharpe Ratio', value: '1.23', status: 'good' },
-                { name: 'Max Drawdown', value: '-15.67%', status: 'medium' },
-                { name: 'Beta', value: '1.32', status: 'high' }
+            // Try multiple video sources
+            const videoSources = [
+                'System.mp4',
+                'mp4/System.mp4',
+                'videos/System.mp4',
+                './System.mp4',
+                './mp4/System.mp4',
+                'TALA_LINK_Demo.mp4'
             ];
             
-            riskMetrics.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                    ${metrics.map(metric => `
-                        <div class="metric-card">
-                            <div class="metric-title">${metric.name}</div>
-                            <div class="metric-value">${metric.value}</div>
-                            <div style="margin-top: 0.5rem;">
-                                <span style="
-                                    display: inline-block;
-                                    padding: 0.25rem 0.75rem;
-                                    border-radius: 20px;
-                                    font-size: 0.8rem;
-                                    font-weight: 600;
-                                    background-color: ${getStatusColor(metric.status, true)};
-                                    color: ${getStatusColor(metric.status, false)};
-                                ">
-                                    ${metric.status.toUpperCase()}
-                                </span>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="metric-card">
-                    <h3 style="color: #f59e0b; margin-bottom: 0.5rem;">Overall Risk Level: MEDIUM</h3>
-                    <p>Based on historical volatility and market analysis, this stock presents a medium risk level suitable for moderate risk tolerance investors.</p>
-                </div>
-            `;
-        }
-
-        // Helper functions
-        function calculateMA(data, period) {
-            const ma = [];
-            for (let i = period - 1; i < data.length; i++) {
-                const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
-                ma.push(sum / period);
-            }
-            return ma;
-        }
-
-        function calculateRSI(data, period) {
-            const gains = [];
-            const losses = [];
-            
-            for (let i = 1; i < data.length; i++) {
-                const change = data[i] - data[i - 1];
-                gains.push(change > 0 ? change : 0);
-                losses.push(change < 0 ? -change : 0);
+            // Function to find working video source
+            function findWorkingVideoSource(element) {
+                for (const source of videoSources) {
+                    const tempVideo = document.createElement('video');
+                    tempVideo.preload = 'none';
+                    
+                    return new Promise((resolve) => {
+                        tempVideo.addEventListener('loadeddata', () => resolve(source));
+                        tempVideo.addEventListener('error', () => resolve(null));
+                        
+                        tempVideo.src = source;
+                        setTimeout(() => resolve(null), 500);
+                    });
+                }
+                return Promise.resolve(null);
             }
             
-            const rsi = [];
-            for (let i = period; i < gains.length; i++) {
-                const avgGain = gains.slice(i - period, i).reduce((a, b) => a + b, 0) / period;
-                const avgLoss = losses.slice(i - period, i).reduce((a, b) => a + b, 0) / period;
+            // Initialize video sources
+            async function initializeVideos() {
+                // Try to find working source for preview
+                const previewSource = await findWorkingVideoSource();
+                if (previewSource && demoVideoPreview) {
+                    demoVideoPreview.src = previewSource;
+                    demoVideoPreview.load();
+                }
                 
-                if (avgLoss === 0) {
-                    rsi.push(100);
-                } else {
-                    const rs = avgGain / avgLoss;
-                    rsi.push(100 - (100 / (1 + rs)));
+                // Try to find working source for modal
+                if (modalVideoPlayer) {
+                    modalVideoPlayer.innerHTML = '';
+                    videoSources.forEach(src => {
+                        const source = document.createElement('source');
+                        source.src = src;
+                        source.type = 'video/mp4';
+                        modalVideoPlayer.appendChild(source);
+                    });
+                }
+                
+                // Update notice
+                if (notice) {
+                    notice.textContent = '✓ Video ready. Click to play.';
+                    notice.classList.remove('video-error');
                 }
             }
             
-            return rsi;
-        }
-
-        function getStatusColor(status, isBackground) {
-            switch(status) {
-                case 'good': return isBackground ? '#d1fae5' : '#065f46';
-                case 'medium': return isBackground ? '#fef3c7' : '#92400e';
-                case 'high': return isBackground ? '#fee2e2' : '#991b1b';
-                default: return isBackground ? '#e5e7eb' : '#374151';
-            }
-        }
-
-        // Update data table
-        function updateDataTable() {
-            const { dates, prices } = generateSampleStockData();
-            const tableBody = document.getElementById('tableBody');
-            
-            const rows = [];
-            for (let i = dates.length - 1; i >= Math.max(0, dates.length - 10); i--) {
-                const date = dates[i].toISOString().split('T')[0];
-                const open = (prices[i] - Math.random() * 2).toFixed(2);
-                const high = (parseFloat(open) + Math.random() * 3).toFixed(2);
-                const low = (parseFloat(open) - Math.random() * 3).toFixed(2);
-                const close = prices[i].toFixed(2);
-                const volume = Math.floor(Math.random() * 50000000 + 20000000).toLocaleString();
-                const ma20 = i >= 19 ? calculateMA(prices.slice(0, i+1), 20).slice(-1)[0].toFixed(2) : '-';
-                const ma50 = i >= 49 ? calculateMA(prices.slice(0, i+1), 50).slice(-1)[0].toFixed(2) : '-';
-                const rsi = i >= 13 ? calculateRSI(prices.slice(0, i+1), 14).slice(-1)[0].toFixed(2) : '-';
+            // Show modal with video
+            function showVideoModal() {
+                videoModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
                 
-                rows.push(`
-                    <tr>
-                        <td>${date}</td>
-                        <td>$${open}</td>
-                        <td>$${high}</td>
-                        <td>$${low}</td>
-                        <td><strong>$${close}</strong></td>
-                        <td>${volume}</td>
-                        <td>${ma20 === '-' ? '-' : `$${ma20}`}</td>
-                        <td>${ma50 === '-' ? '-' : `$${ma50}`}</td>
-                        <td>${rsi}</td>
-                    </tr>
-                `);
+                // Try to play video after modal opens
+                setTimeout(() => {
+                    if (modalVideoPlayer) {
+                        modalVideoPlayer.currentTime = 0;
+                        modalVideoPlayer.play().catch(e => {
+                            console.log("Autoplay prevented, user can click play");
+                        });
+                    }
+                }, 300);
             }
             
-            tableBody.innerHTML = rows.join('');
-        }
-
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize
-            updateMetrics();
-            createPriceChart();
-            createIndicatorsChart();
-            updateCompanyInfo();
-            updateRiskMetrics();
-            updateDataTable();
+            // Hide modal
+            function hideVideoModal() {
+                videoModal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+                
+                if (modalVideoPlayer) {
+                    modalVideoPlayer.pause();
+                    modalVideoPlayer.currentTime = 0;
+                }
+            }
             
-            // Update last update time
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+            // Event Listeners
+            // Play video in modal
+            if (playVideoBtn) {
+                playVideoBtn.addEventListener('click', showVideoModal);
+            }
             
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
+            // Play video in modal (second button)
+            if (playVideoModalBtn) {
+                playVideoModalBtn.addEventListener('click', showVideoModal);
+            }
+            
+            // Video preview click
+            if (videoPreview) {
+                videoPreview.addEventListener('click', showVideoModal);
+            }
+            
+            // View demo project button
+            if (viewDemoProjectBtn) {
+                viewDemoProjectBtn.addEventListener('click', showVideoModal);
+            }
+            
+            // Download proposal button
+            if (downloadProposalBtn) {
+                downloadProposalBtn.addEventListener('click', function() {
+                    window.open('TALA_LINK_PORTFOLIO.pdf', '_blank');
+                });
+            }
+            
+            // Close modal buttons
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', hideVideoModal);
+            }
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === videoModal) {
+                    hideVideoModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && videoModal.classList.contains('show')) {
+                    hideVideoModal();
+                }
+            });
+            
+            // Video preview hover effect
+            if (demoVideoPreview) {
+                demoVideoPreview.addEventListener('loadeddata', function() {
+                    if (notice) {
+                        notice.textContent = '✓ Video loaded. Click to play full demo.';
+                    }
+                });
+                
+                demoVideoPreview.addEventListener('error', function(e) {
+                    console.error('Video error:', demoVideoPreview.error);
+                    if (notice) {
+                        notice.textContent = '⚠ Video file not found. Please check file location.';
+                        notice.style.color = '#ef4444';
+                    }
+                });
+            }
+            
+            // Initialize videos
+            initializeVideos();
+            
+            // Add fallback video loading
+            setTimeout(() => {
+                if (demoVideoPreview && demoVideoPreview.readyState === 0) {
+                    // Try direct loading
+                    const video = demoVideoPreview;
+                    const sources = video.querySelectorAll('source');
                     
-                    // Update active tab
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update active content
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
+                    sources.forEach(source => {
+                        source.addEventListener('error', () => {
+                            console.log(`Failed to load: ${source.src}`);
+                        });
                     });
-                    document.getElementById(tabId).classList.add('active');
+                    
+                    video.load();
+                }
+            }, 1000);
+            
+            // PDF download handling
+            const pdfLink = document.getElementById('downloadPdfLink');
+            if (pdfLink) {
+                pdfLink.addEventListener('click', function(e) {
+                    const msg = document.getElementById('downloadMessage');
+                    if (msg) {
+                        msg.textContent = 'Downloading PDF...';
+                        setTimeout(() => {
+                            msg.textContent = 'If download doesn\'t start, right-click and "Save link as"';
+                        }, 1000);
+                    }
                 });
-            });
-            
-            // Time period buttons
-            document.querySelectorAll('.time-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    // In a real app, you would update the chart based on the selected period
-                });
-            });
-            
-            // Range inputs
-            document.getElementById('maShort').addEventListener('input', function() {
-                document.getElementById('maShortValue').textContent = this.value;
-            });
-            
-            document.getElementById('maLong').addEventListener('input', function() {
-                document.getElementById('maLongValue').textContent = this.value;
-            });
-            
-            document.getElementById('rsiPeriod').addEventListener('input', function() {
-                document.getElementById('rsiValue').textContent = this.value;
-            });
-            
-            // Download button
-            document.getElementById('downloadBtn').addEventListener('click', function() {
-                alert('Download feature would be implemented in a real application');
-            });
-            
-            // Export button
-            document.getElementById('exportBtn').addEventListener('click', function() {
-                alert('Export to CSV feature would be implemented in a real application');
-            });
-            
-            // Stock symbol change
-            document.getElementById('stockSymbol').addEventListener('change', function() {
-                // In a real app, you would fetch new data for this symbol
-                document.getElementById('chartTitle').textContent = `${this.value.toUpperCase()} Price Chart`;
-                alert(`Would fetch data for ${this.value.toUpperCase()} in a real application`);
-            });
-            
-            // Date range change
-            document.getElementById('dateRange').addEventListener('change', function() {
-                alert(`Would update data for ${this.value} period in a real application`);
-            });
+            }
         });
     </script>
 </body>
-                            </html>
+</html>
