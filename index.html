@@ -674,6 +674,37 @@
             
             // Function to load video file directly
             async function loadVideoFile() {
+                // If the page is opened via file://, don't use fetch (not supported for file scheme).
+                // Instead set the existing local source directly and let the browser load it.
+                if (location.protocol === 'file:') {
+                    const localSrc = 'mp4/System.mp4';
+                    const mp4Source = document.getElementById('mp4Source');
+                    const mp4Local = document.getElementById('mp4LocalSource');
+                    if (mp4Local && mp4Local.getAttribute('src')) {
+                        // Use the local source already declared in HTML
+                        const src = mp4Local.getAttribute('src');
+                        video.src = src;
+                        video.load();
+                        if (directLink) directLink.href = src;
+                        if (downloadLink) downloadLink.href = src;
+                        if (notice) {
+                            notice.textContent = '✓ Local file ready (file://). Tap to play.';
+                            notice.classList.remove('video-error');
+                        }
+                        return true;
+                    }
+                    // Fallback: set a reasonable local path if mp4Local not present
+                    video.src = localSrc;
+                    video.load();
+                    if (directLink) directLink.href = localSrc;
+                    if (downloadLink) downloadLink.href = localSrc;
+                    if (notice) {
+                        notice.textContent = '✓ Local file ready (file://). Tap to play.';
+                        notice.classList.remove('video-error');
+                    }
+                    return true;
+                }
+
                 // Try a set of local paths (page-relative) before falling back to the CDN source
                 const candidatePaths = [
                     'mp4/System.mp4',            // common repo layout
