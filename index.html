@@ -229,7 +229,7 @@
             <h2>System Demo</h2>
             <p style="color:var(--muted)">Watch the walkthrough of the Example system.</p>
             <div class="card" style="padding:0;overflow:hidden">
-                <video id="demoVideo" controls playsinline controlslist="nodownload" poster="qcu.png" style="width:100%;display:block;background:#000" preload="metadata">
+                <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" poster="qcu.png" style="width:100%;display:block;background:#000" preload="metadata">
                     <!-- Prefer H.264/AAC encoded MP4 for widest support -->
                     <source id="demoSrc" src="System.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
@@ -489,6 +489,55 @@
                 } else {
                     alert('File not found on server.');
                 }
+            });
+        })();
+
+        // Video path detection and helpful error messages for mobile
+        (function(){
+            const video = document.getElementById('demoVideo');
+            const srcEl = document.getElementById('demoSrc');
+            const notice = document.getElementById('videoNotice');
+            if (!video || !srcEl) return;
+
+            const tryPaths = [
+                'System.mp4',
+                '/System.mp4',
+                '/Capstone-Portfolio/System.mp4',
+                'videos/System.mp4',
+                'media/System.mp4'
+            ];
+
+            async function probePath(p){
+                try {
+                    const res = await fetch(p, { method: 'HEAD' });
+                    return res && res.ok;
+                } catch (err) {
+                    return false;
+                }
+            }
+
+            (async function findVideo(){
+                for (const p of tryPaths) {
+                    const ok = await probePath(p);
+                    if (ok) {
+                        srcEl.src = p;
+                        try { video.load(); } catch (e) {}
+                        if (notice) notice.textContent = 'Demo media loaded: ' + p;
+                        console.log('Video loaded from', p);
+                        return;
+                    }
+                }
+                if (notice) notice.textContent = 'Demo media not found — confirm file path on server.';
+                console.warn('Video not found on any known paths:', tryPaths);
+            })();
+
+            video.addEventListener('error', (ev) => {
+                console.warn('Video error event', ev, video.currentSrc);
+                if (notice) notice.textContent = 'Video could not be played on this device. Try opening the file directly or check server CORS/path.';
+            });
+
+            video.addEventListener('loadedmetadata', () => {
+                console.log('Video metadata loaded', video.currentSrc);
             });
         })();
     </script>
