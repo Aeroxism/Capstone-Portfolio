@@ -749,41 +749,72 @@
                 }
             }
             
-            // Play video function
+            // Play video function (improved handling for interrupted play() calls)
             async function playVideo() {
+                // Prevent multiple clicks while attempting playback
+                overlay.style.pointerEvents = 'none';
                 try {
-                    overlay.classList.add('hidden');
-                    video.controls = true;
-                    
-                    // Try to play
+                    if (notice) {
+                        notice.textContent = 'Starting video...';
+                        notice.classList.remove('video-error');
+                    }
+
+                    // Try to play; don't enable controls until play succeeds
                     const playPromise = video.play();
-                    
                     if (playPromise !== undefined) {
                         await playPromise;
-                        if (notice) {
-                            notice.textContent = '▶ Video playing. Tap for controls.';
-                            notice.classList.remove('video-error');
-                        }
+                    }
+
+                    video.controls = true;
+                    overlay.classList.add('hidden');
+                    overlay.style.pointerEvents = '';
+
+                    if (notice) {
+                        notice.textContent = '▶ Video playing. Tap for controls.';
+                        notice.classList.remove('video-error');
                     }
                 } catch (error) {
                     console.error('Playback error:', error);
-                    
+                    overlay.style.pointerEvents = '';
+
                     if (notice) {
                         let errorMsg = '❌ Playback failed. ';
-                        
-                        if (error.name === 'NotAllowedError') {
+                        if (error && error.name === 'NotAllowedError') {
                             errorMsg = '⚠ Tap the play button in the video controls to start playback.';
-                        } else if (error.name === 'NotSupportedError') {
+                        } else if (error && error.name === 'NotSupportedError') {
                             errorMsg = '❌ Video format not supported by your browser. Try downloading the file.';
+                        } else if (error && error.name === 'AbortError') {
+                            errorMsg = '❌ Playback interrupted. Retrying...';
                         } else {
-                            errorMsg += error.message;
+                            errorMsg += error && error.message ? error.message : String(error);
                         }
-                        
                         notice.textContent = errorMsg;
                         notice.classList.add('video-error');
                     }
-                    
-                    overlay.classList.remove('hidden');
+
+                    // If play was interrupted, retry once after a short delay
+                    const msg = error && (error.name === 'AbortError' || /interrupt/i.test(error.message || ''));
+                    if (msg) {
+                        setTimeout(async () => {
+                            try {
+                                if (notice) notice.textContent = 'Retrying playback...';
+                                const p2 = video.play();
+                                if (p2 !== undefined) await p2;
+                                video.controls = true;
+                                overlay.classList.add('hidden');
+                                if (notice) {
+                                    notice.textContent = '▶ Video playing after retry.';
+                                    notice.classList.remove('video-error');
+                                }
+                            } catch (err2) {
+                                console.error('Playback retry failed:', err2);
+                                if (notice) notice.textContent = '❌ Playback retry failed. Try downloading the file.';
+                                overlay.classList.remove('hidden');
+                            }
+                        }, 250);
+                    } else {
+                        overlay.classList.remove('hidden');
+                    }
                 }
             }
             
