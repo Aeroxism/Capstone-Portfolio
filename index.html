@@ -395,6 +395,13 @@
             
             <div class="video-fallback">
                 <p style="margin-bottom:10px;color:var(--muted)">If video doesn't play, try these options:</p>
+                <div id="qualitySelector" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
+                    <button class="btn" id="qualityAuto" data-quality="auto" title="Auto-select quality based on your connection">Auto (recommended)</button>
+                    <button class="btn" id="qualityLow" data-quality="low" title="Prefer low bandwidth/resolution">Low quality</button>
+                    <button class="btn" id="qualityOrig" data-quality="original" title="Prefer original file">Original</button>
+                </div>
+                <div style="text-align:center;margin-bottom:8px;color:var(--muted);font-size:0.95rem;" id="qualityNote">Detected file: <strong>System.mp4</strong> (~43.5 MB). Low-res fallback will be used on slow connections when available.</div>
+
                 <div class="fallback-buttons">
                     <a id="directVideoLink" href="mp4/System.mp4" class="btn" target="_blank" rel="noopener" style="background:var(--primary);color:#fff;">
                         <span style="margin-right:8px">▶️</span> Open in Player
@@ -669,35 +676,79 @@
             const notice = document.getElementById('videoNotice');
             const directLink = document.getElementById('directVideoLink');
             const downloadLink = document.getElementById('downloadVideoLink');
+
+            // Quality selection: 'auto' | 'low' | 'original'
+            let selectedQuality = 'auto';
+            const qualityNoteEl = document.getElementById('qualityNote');
+            const qualityButtons = {
+                auto: document.getElementById('qualityAuto'),
+                low: document.getElementById('qualityLow'),
+                original: document.getElementById('qualityOrig')
+            };
+
+            // Candidate paths for variants
+            const VAR_ORIG = 'mp4/System.mp4';
+            const VAR_LOW = 'mp4/System_480.mp4'; // expected low-res variant (create with ffmpeg if missing)
+
+            function setQuality(q) {
+                if (!q) return;
+                selectedQuality = q;
+                // UI states
+                Object.keys(qualityButtons).forEach(k => {
+                    const btn = qualityButtons[k];
+                    if (!btn) return;
+                    if (k === (q === 'original' ? 'original' : q === 'low' ? 'low' : 'auto')) {
+                        btn.classList.add('primary');
+                        btn.style.borderColor = 'transparent';
+                    } else {
+                        btn.classList.remove('primary');
+                        btn.style.borderColor = '';
+                    }
+                });
+
+                if (qualityNoteEl) {
+                    if (q === 'low') qualityNoteEl.textContent = 'Low quality selected. If the low file is missing, the original will be used.';
+                    else if (q === 'original') qualityNoteEl.textContent = 'Original file selected.';
+                    else qualityNoteEl.textContent = 'Auto: will prefer low quality on slow connections if available.';
+                }
+
+                // Reload video sources with the new quality preference
+                loadVideoFile();
+            }
+
+            // Attach listeners
+            Object.keys(qualityButtons).forEach(k => {
+                const btn = qualityButtons[k];
+                if (!btn) return;
+                btn.addEventListener('click', (e) => { e.preventDefault(); setQuality(k === 'auto' ? 'auto' : k === 'low' ? 'low' : 'original'); });
+            });
             
             if (!video) return;
             
-            // Function to load video file directly
+            // Function to load video file directly with quality preference
             async function loadVideoFile() {
-                // If the page is opened via file://, don't use fetch (not supported for file scheme).
-                // Instead set the existing local source directly and let the browser load it.
+                // Determine preferred candidate list based on selectedQuality
+                let candidates = [];
+
+                // Helper: build fallback candidate list
+                function buildCandidates(preferLow) {
+                    const list = [];
+                    if (preferLow) list.push(VAR_LOW);
+                    list.push(VAR_ORIG);
+                    // other fallbacks
+                    list.push('System.mp4');
+                    list.push('/Capstone-Portfolio/mp4/System.mp4');
+                    return list;
+                }
+
+                // If opened locally via file://, avoid fetch; try to use declared sources
                 if (location.protocol === 'file:') {
-                    const localSrc = 'mp4/System.mp4';
-                    const mp4Source = document.getElementById('mp4Source');
                     const mp4Local = document.getElementById('mp4LocalSource');
-                    if (mp4Local && mp4Local.getAttribute('src')) {
-                        // Use the local source already declared in HTML
-                        const src = mp4Local.getAttribute('src');
-                        video.src = src;
-                        video.load();
-                        if (directLink) directLink.href = src;
-                        if (downloadLink) downloadLink.href = src;
-                        if (notice) {
-                            notice.textContent = '✓ Local file ready (file://). Tap to play.';
-                            notice.classList.remove('video-error');
-                        }
-                        return true;
-                    }
-                    // Fallback: set a reasonable local path if mp4Local not present
-                    video.src = localSrc;
+                    const src = (selectedQuality === 'low' ? VAR_LOW : (selectedQuality === 'original' ? VAR_ORIG : (mp4Local && mp4Local.getAttribute('src')))) || VAR_ORIG;
+                    video.src = src;
                     video.load();
-                    if (directLink) directLink.href = localSrc;
-                    if (downloadLink) downloadLink.href = localSrc;
+                    if (directLink) directLink.href = src;
+                    if (downloadLink) downloadLink.href = src;
                     if (notice) {
                         notice.textContent = '✓ Local file ready (file://). Tap to play.';
                         notice.classList.remove('video-error');
@@ -705,36 +756,39 @@
                     return true;
                 }
 
-                // Try a set of local paths (page-relative) before falling back to the CDN source
-                const candidatePaths = [
-                    'mp4/System.mp4',            // common repo layout
-                    'System.mp4',                // root fallback
-                    '/Capstone-Portfolio/mp4/System.mp4' // absolute when served from localhost at repo root
-                ];
+                // If 'auto', inspect network to prefer low on slow connections
+                let preferLow = false;
+                if (selectedQuality === 'auto') {
+                    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                    try {
+                        const saveData = conn && conn.saveData;
+                        const downlink = conn && conn.downlink ? conn.downlink : null; // Mbps
+                        if (saveData || (downlink !== null && downlink < 1.5)) preferLow = true;
+                    } catch (e) {
+                        preferLow = true; // be conservative
+                    }
+                } else if (selectedQuality === 'low') {
+                    preferLow = true;
+                }
 
-                for (const p of candidatePaths) {
+                candidates = buildCandidates(preferLow);
+
+                for (const p of candidates) {
                     try {
                         const response = await fetch(p, { method: 'GET' });
                         if (response.ok) {
                             const blob = await response.blob();
                             console.log(`Local video loaded from ${p}: ${blob.size} bytes`);
-
                             const blobUrl = URL.createObjectURL(blob);
-
                             const mp4Source = document.getElementById('mp4Source');
                             if (mp4Source) mp4Source.src = blobUrl;
-
-                            // Also set as main video src
                             video.src = blobUrl;
                             video.load();
-
-                            // Update fallback links
                             if (directLink) directLink.href = blobUrl;
                             if (downloadLink) {
                                 downloadLink.href = blobUrl;
                                 downloadLink.download = 'System.mp4';
                             }
-
                             if (notice) {
                                 notice.textContent = '✓ Video ready. Tap the play button to start.';
                                 notice.classList.remove('video-error');
@@ -742,18 +796,16 @@
                                 notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
                                 notice.style.color = '#22d3ee';
                             }
-
                             return true;
                         }
                     } catch (err) {
-                        console.log(`Local video not found at ${p}:`, err);
+                        console.log(`Video not found or fetch failed at ${p}:`, err);
                         // try next candidate
                     }
                 }
 
                 // If none of the local paths succeeded, allow the video element to use CDN source defined in HTML
                 setTimeout(() => {
-                    // If the video element has no effective src but a source element exists, assume CDN streaming
                     const srcAttr = video.currentSrc || (document.getElementById('mp4Source') && document.getElementById('mp4Source').src);
                     if (srcAttr) {
                         if (notice) {
