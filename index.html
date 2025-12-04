@@ -777,30 +777,70 @@
                     try {
                         const response = await fetch(p, { method: 'GET' });
                         if (response.ok) {
+                            const contentType = response.headers.get('Content-Type') || response.headers.get('content-type') || '';
                             const blob = await response.blob();
-                            console.log(`Local video loaded from ${p}: ${blob.size} bytes`);
-                            const blobUrl = URL.createObjectURL(blob);
-                            const mp4Source = document.getElementById('mp4Source');
-                            if (mp4Source) mp4Source.src = blobUrl;
-                            video.src = blobUrl;
-                            video.load();
-                            if (directLink) directLink.href = blobUrl;
-                            if (downloadLink) {
-                                downloadLink.href = blobUrl;
-                                downloadLink.download = 'System.mp4';
+                            console.log(`Fetched ${p} — content-type: ${contentType}; size: ${blob.size} bytes`);
+
+                            // Only treat as a video blob if the content-type indicates video and size looks reasonable
+                            const isVideoType = /video\//i.test(contentType);
+                            const MIN_VIDEO_BYTES = 2000; // small heuristic: blobs smaller than this likely not real video
+
+                            if (isVideoType && blob.size > MIN_VIDEO_BYTES) {
+                                const blobUrl = URL.createObjectURL(blob);
+                                const mp4Source = document.getElementById('mp4Source');
+                                if (mp4Source) mp4Source.src = blobUrl;
+                                video.src = blobUrl;
+                                video.load();
+                                if (directLink) directLink.href = blobUrl;
+                                if (downloadLink) {
+                                    downloadLink.href = blobUrl;
+                                    downloadLink.download = 'System.mp4';
+                                }
+                                if (notice) {
+                                    notice.textContent = '✓ Video ready. Tap the play button to start.';
+                                    notice.classList.remove('video-error');
+                                    notice.style.background = 'rgba(34, 211, 238, 0.1)';
+                                    notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
+                                    notice.style.color = '#22d3ee';
+                                }
+                                return true;
                             }
-                            if (notice) {
-                                notice.textContent = '✓ Video ready. Tap the play button to start.';
-                                notice.classList.remove('video-error');
-                                notice.style.background = 'rgba(34, 211, 238, 0.1)';
-                                notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
-                                notice.style.color = '#22d3ee';
-                            }
-                            return true;
+
+                            // If the fetched resource isn't a video (or is tiny), skip using the blob and fall back below
+                            console.warn(`Skipping fetched resource for ${p}: not a video or too small (type=${contentType}, size=${blob.size})`);
                         }
                     } catch (err) {
                         console.log(`Video not found or fetch failed at ${p}:`, err);
                         // try next candidate
+                    }
+                }
+                // As a fallback: set the video.src to a candidate path directly and let the browser request it.
+                // This helps when the server returns an HTML page for fetch (e.g. a redirect or placeholder) but
+                // the browser would still be able to request the correct static file when using the <video> element.
+                for (const p of candidates) {
+                    try {
+                        // set src directly and test if the browser accepts the type by checking canPlayType
+                        video.removeAttribute('src');
+                        const mp4Source = document.getElementById('mp4Source');
+                        if (mp4Source) mp4Source.src = p;
+                        video.src = p;
+                        // update fallback links to point to the path (not blob)
+                        if (directLink) directLink.href = p;
+                        if (downloadLink) downloadLink.href = p;
+                        // Let the browser attempt to load headers; wait briefly to see if readyState changes
+                        await new Promise(resolve => setTimeout(resolve, 200));
+                        // If browser thinks the type is playable (based on extension/headers), accept this source
+                        const canPlay = video.canPlayType('video/mp4');
+                        if (canPlay === 'probably' || canPlay === 'maybe') {
+                            if (notice) {
+                                notice.textContent = '✓ Video will be loaded by the browser from ' + p + '. Tap play to start.';
+                                notice.classList.remove('video-error');
+                            }
+                            return true;
+                        }
+                    } catch (err) {
+                        // ignore and try next path
+                        console.log('Direct src test failed for', p, err);
                     }
                 }
 
