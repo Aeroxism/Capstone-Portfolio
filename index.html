@@ -674,60 +674,70 @@
             
             // Function to load video file directly
             async function loadVideoFile() {
-                try {
-                    // Try local file first
-                    const response = await fetch('System.mp4');
-                    if (response.ok) {
-                        const blob = await response.blob();
-                        console.log(`Local video loaded: ${blob.size} bytes`);
-                        
-                        // Create blob URL
-                        const blobUrl = URL.createObjectURL(blob);
-                        
-                        // Set video source directly
-                        const mp4Source = document.getElementById('mp4Source');
-                        if (mp4Source) {
-                            mp4Source.src = blobUrl;
+                // Try a set of local paths (page-relative) before falling back to the CDN source
+                const candidatePaths = [
+                    'mp4/System.mp4',            // common repo layout
+                    'System.mp4',                // root fallback
+                    '/Capstone-Portfolio/mp4/System.mp4' // absolute when served from localhost at repo root
+                ];
+
+                for (const p of candidatePaths) {
+                    try {
+                        const response = await fetch(p, { method: 'GET' });
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            console.log(`Local video loaded from ${p}: ${blob.size} bytes`);
+
+                            const blobUrl = URL.createObjectURL(blob);
+
+                            const mp4Source = document.getElementById('mp4Source');
+                            if (mp4Source) mp4Source.src = blobUrl;
+
+                            // Also set as main video src
+                            video.src = blobUrl;
+                            video.load();
+
+                            // Update fallback links
+                            if (directLink) directLink.href = blobUrl;
+                            if (downloadLink) {
+                                downloadLink.href = blobUrl;
+                                downloadLink.download = 'System.mp4';
+                            }
+
+                            if (notice) {
+                                notice.textContent = '✓ Video ready. Tap the play button to start.';
+                                notice.classList.remove('video-error');
+                                notice.style.background = 'rgba(34, 211, 238, 0.1)';
+                                notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
+                                notice.style.color = '#22d3ee';
+                            }
+
+                            return true;
                         }
-                        
-                        // Also set as main video src
-                        video.src = blobUrl;
-                        video.load();
-                        
-                        // Update fallback links
-                        if (directLink) directLink.href = blobUrl;
-                        if (downloadLink) {
-                            downloadLink.href = blobUrl;
-                            downloadLink.download = 'System.mp4';
-                        }
-                        
-                        if (notice) {
-                            notice.textContent = '✓ Video ready. Tap the play button to start.';
-                            notice.classList.remove('video-error');
-                            notice.style.background = 'rgba(34, 211, 238, 0.1)';
-                            notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
-                            notice.style.color = '#22d3ee';
-                        }
-                        
-                        return true;
+                    } catch (err) {
+                        console.log(`Local video not found at ${p}:`, err);
+                        // try next candidate
                     }
-                } catch (error) {
-                    console.log(`Local video not found, using CDN source:`, error);
-                    // Video will load from CDN source in HTML
                 }
-                
-                // If local not found, video element will use CDN source
-                // Check if CDN source is actually loading
+
+                // If none of the local paths succeeded, allow the video element to use CDN source defined in HTML
                 setTimeout(() => {
-                    if (!video.src && video.srcObject) {
+                    // If the video element has no effective src but a source element exists, assume CDN streaming
+                    const srcAttr = video.currentSrc || (document.getElementById('mp4Source') && document.getElementById('mp4Source').src);
+                    if (srcAttr) {
                         if (notice) {
                             notice.textContent = '✓ Video streaming from CDN. Tap to play.';
                             notice.classList.remove('video-error');
                         }
+                    } else {
+                        if (notice) {
+                            notice.textContent = '❌ Video not found locally and CDN source unavailable.';
+                            notice.classList.add('video-error');
+                        }
                     }
-                }, 2000);
-                
-                return true;
+                }, 800);
+
+                return false;
             }
             
             // Mobile detection
