@@ -147,7 +147,7 @@
             .nav a { padding: 8px 6px; }
         }
         
-        /* VIDEO FIXES FOR MOBILE */
+        /* VIDEO FIXES - GINAYA MO SA IBANG PORTFOLIO MO */
         .video-container {
             position: relative;
             width: 100%;
@@ -174,64 +174,8 @@
             background: #000;
         }
         
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 10;
-            cursor: pointer;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-        
-        .video-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .play-button {
-            background: rgba(22, 163, 74, 0.9);
-            border: 3px solid white;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .play-button:hover, .play-button:active {
-            background: rgba(22, 163, 74, 1);
-            transform: scale(1.1);
-        }
-        
-        .video-fallback {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(18, 22, 28, 0.7);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-        
-        .fallback-buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
+        /* REMOVED: video-overlay, play-button, etc. */
+        /* We'll use your working approach instead */
         
         .video-notice {
             margin-top: 10px;
@@ -270,58 +214,158 @@
             content: "✅";
         }
         
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
+        /* Modal Styles - FROM YOUR WORKING CODE */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.8rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border-top-color: var(--accent);
-            animation: spin 1s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            transition: background 0.3s ease;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
         }
         
-        /* Mobile-specific video styles */
-        @media (max-width: 768px) {
-            .video-wrapper {
-                padding-bottom: 56.25%; /* Keep 16:9 for mobile */
-            }
-            
-            .play-button {
-                width: 65px;
-                height: 65px;
-                font-size: 1.8rem;
-            }
-            
-            .video-container {
-                margin: 12px 0;
-            }
-            
-            .fallback-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .fallback-buttons .btn {
-                width: 100%;
-                max-width: 280px;
-                justify-content: center;
-            }
+        .modal-body {
+            padding: 30px;
+            overflow-y: auto;
+            max-height: calc(90vh - 60px);
         }
         
-        @media (max-width: 480px) {
-            .play-button {
-                width: 60px;
-                height: 60px;
-                font-size: 1.6rem;
-            }
-            
-            .video-wrapper {
-                padding-bottom: 56.25%; /* Keep 16:9 even for very small screens */
-            }
+        .modal-header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .modal-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Video Container for Modal */
+        .modal-video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .modal-video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .project-details {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .project-details h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            text-align: center;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .feature i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .feature h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        /* Download button style */
+        .download-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .download-btn:hover {
+            background-color: var(--primary-700);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -329,7 +373,10 @@
     <header>
         <nav class="nav">
             <div class="brand">
-                <img id="qcuLogo" src="qcu.png" alt="QCU Logo" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);object-fit:cover;background:#fff" />
+                <!-- Fallback logo if qcu.png doesn't exist -->
+                <div style="display: flex; align-items: center; justify-content: center; width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg, var(--primary), var(--accent));color:white;font-weight:bold;font-size:14px;">
+                    QCU
+                </div>
                 <span>Capstone</span>
             </div>
             <button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">
@@ -358,7 +405,7 @@
             <div class="cta">
                 <a class="btn primary" href="#overview">View Project</a>
                 <a class="btn" href="#contact">Request Info</a>
-                <a id="downloadPdfLink" class="btn" href="/Capstone-Portfolio/TALA_LINK_PORTFOLIO.pdf" download target="_blank" rel="noopener">Download Proposal</a>
+                <a id="downloadPdfLink" class="btn" href="TALA_LINK_PORTFOLIO.pdf" download target="_blank" rel="noopener">Download Proposal</a>
                 <div id="downloadMessage" style="margin-top:8px;color:var(--muted)"></div>
             </div>
         </div>
@@ -402,38 +449,34 @@
         </div>
     </section>
 
-    <!-- Demo Video - FIXED VERSION -->
+    <!-- Demo Video - USING YOUR WORKING APPROACH -->
     <section id="demo">
         <div class="card section-card">
             <h2>System Demo</h2>
             <p style="color:var(--muted)">Watch the walkthrough of the TALA LINK system.</p>
             
+            <!-- Simple Video Preview with Modal Button -->
             <div class="video-container">
                 <div class="video-wrapper">
-                    <!-- SIMPLIFIED VIDEO TAG - Direct loading -->
-                    <video id="demoVideo" controls playsinline preload="metadata">
-                        <source src="mp4/System.mp4" type="video/mp4">
+                    <!-- Video Thumbnail Preview -->
+                    <video id="demoVideoPreview" preload="metadata" playsinline style="cursor: pointer;">
+                        <source src="mp4/System.mp4#t=0.1" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
-                    
-                    <div class="video-overlay" id="videoOverlay">
-                        <div class="play-button" id="playButton">
-                            ▶
-                        </div>
-                    </div>
                 </div>
             </div>
             
             <div id="videoNotice" class="video-notice">
-                Tap the play button to start the video (42.3 MB). For best results on mobile, a stable Wi-Fi connection is recommended.
+                Click the video preview above to watch the full demo (42.3 MB)
             </div>
             
-            <div class="video-fallback">
-                <div class="fallback-buttons">
-                    <a href="mp4/System.mp4" class="btn" target="_blank" style="background:var(--primary);color:#fff;" download="TALA_LINK_Demo.mp4">
-                        <span style="margin-right:8px">📥</span> Download Video (42.3 MB)
-                    </a>
-                </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="playVideoBtn" class="download-btn" style="background: var(--accent); color: #000;">
+                    <i class="fas fa-play" style="margin-right: 8px;"></i> Play Full Demo Video
+                </button>
+                <a href="mp4/System.mp4" class="download-btn" download="TALA_LINK_Demo.mp4" style="margin-left: 15px;">
+                    <i class="fas fa-download" style="margin-right: 8px;"></i> Download Video
+                </a>
             </div>
         </div>
     </section>
@@ -593,24 +636,6 @@
                     <p>We humbly seek your support and approval to implement our project within your institution. Your guidance and cooperation are deeply valued.</p>
                 </div>
             </div>
-            <div class="card" style="margin-top:12px">
-                <h3>Send a Message</h3>
-                <form id="contactForm" class="contact-form" novalidate>
-                    <div class="form-group">
-                        <label for="cf-name">Name</label>
-                        <input id="cf-name" name="from_name" type="text" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="cf-email">Email</label>
-                        <input id="cf-email" name="reply_to" type="email" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="cf-message">Message</label>
-                        <textarea id="cf-message" name="message" required></textarea>
-                    </div>
-                    <button type="submit" class="btn">Send Message</button>
-                </form>
-            </div>
         </div>
     </section>
 
@@ -621,9 +646,16 @@
         </div>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <!-- EmailJS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
+    <!-- Video Modal (Ginaya mula sa working code mo) -->
+    <div class="modal" id="videoModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-body" id="videoModalBody">
+                <!-- Video content will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Smooth scroll for nav links
         document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -632,6 +664,7 @@
                 if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
             });
         });
+        
         // Accordion toggle
         document.querySelectorAll('.acc-header').forEach(h => {
             h.addEventListener('click', () => {
@@ -667,15 +700,15 @@
             });
         })();
 
-        // PDF download using FileSaver.js (fetches only when user clicks)
+        // PDF download
         (function() {
             const link = document.getElementById('downloadPdfLink');
             const msg = document.getElementById('downloadMessage');
             if (!link) return;
             const tryPaths = [
+                'TALA_LINK_PORTFOLIO.pdf',
                 '/TALA_LINK_PORTFOLIO.pdf',
-                '/Capstone-Portfolio/TALA_LINK_PORTFOLIO.pdf',
-                'TALA_LINK_PORTFOLIO.pdf'
+                './TALA_LINK_PORTFOLIO.pdf'
             ];
 
             link.addEventListener('click', async (e) => {
@@ -686,16 +719,12 @@
                         const res = await fetch(p);
                         if (!res.ok) continue;
                         const blob = await res.blob();
-                        if (typeof saveAs === 'function') {
-                            saveAs(blob, 'TALA_LINK_PORTFOLIO.pdf');
-                        } else {
-                            // Fallback: create object URL and trigger download
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url; a.download = 'TALA_LINK_PORTFOLIO.pdf';
-                            document.body.appendChild(a); a.click(); a.remove();
-                            URL.revokeObjectURL(url);
-                        }
+                        // Fallback: create object URL and trigger download
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url; a.download = 'TALA_LINK_PORTFOLIO.pdf';
+                        document.body.appendChild(a); a.click(); a.remove();
+                        URL.revokeObjectURL(url);
                         if (msg) msg.textContent = 'Download started.';
                         return;
                     } catch (err) {
@@ -712,152 +741,142 @@
         })();
 
         // ===========================
-        // SIMPLIFIED VIDEO PLAYBACK FIX
+        // VIDEO PLAYBACK - USING YOUR WORKING APPROACH
         // ===========================
-        (function() {
-            const video = document.getElementById('demoVideo');
-            const overlay = document.getElementById('videoOverlay');
-            const playButton = document.getElementById('playButton');
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoModal = document.getElementById('videoModal');
+            const videoModalBody = document.getElementById('videoModalBody');
+            const closeModalButtons = document.querySelectorAll('.close-btn');
+            const playVideoBtn = document.getElementById('playVideoBtn');
+            const videoPreview = document.getElementById('demoVideoPreview');
             const notice = document.getElementById('videoNotice');
-
-            if (!video || !overlay) return;
-
-            // Initialize video for mobile
-            video.setAttribute('playsinline', '');
-            video.setAttribute('webkit-playsinline', '');
-
-            // Play video when overlay is clicked
-            function playVideo() {
-                overlay.style.pointerEvents = 'none';
-                video.play().then(() => {
-                    overlay.classList.add('hidden');
-                    // Ensure controls are visible
-                    video.controls = true;
+            
+            // Function to show video modal
+            function showVideoModal() {
+                videoModalBody.innerHTML = `
+                    <div class="modal-header">
+                        <h2>TALA LINK System Demo</h2>
+                        <p>Full walkthrough of the Patient Information Management and Medical Personnel Scheduling System.</p>
+                    </div>
+                    <div class="modal-video-container">
+                        <video class="modal-video" controls autoplay playsinline>
+                            <source src="mp4/System.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="project-details">
+                        <h3>System Overview</h3>
+                        <p>This demo showcases the complete workflow of the TALA LINK system, including patient registration, scheduling, queue management, and AI-powered decision support features.</p>
+                        <div class="features">
+                            <div class="feature">
+                                <i class="fas fa-user-injured"></i>
+                                <h4>Patient Management</h4>
+                                <p>Complete patient record handling</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-calendar-alt"></i>
+                                <h4>Smart Scheduling</h4>
+                                <p>Efficient doctor and nurse scheduling</p>
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-robot"></i>
+                                <h4>AI Assistance</h4>
+                                <p>Clinical decision support system</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                videoModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                
+                // Auto-play the video
+                setTimeout(() => {
+                    const video = document.querySelector('.modal-video');
+                    if (video) {
+                        video.play().catch(e => {
+                            console.log("Autoplay prevented, user interaction required");
+                        });
+                    }
+                }, 500);
+            }
+            
+            // Event Listeners
+            playVideoBtn.addEventListener('click', showVideoModal);
+            
+            // Also make the video preview clickable
+            if (videoPreview) {
+                videoPreview.addEventListener('click', showVideoModal);
+                videoPreview.style.cursor = 'pointer';
+            }
+            
+            // Close modal buttons
+            closeModalButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    videoModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
+                    // Pause video when closing modal
+                    const video = document.querySelector('.modal-video');
+                    if (video) {
+                        video.pause();
+                    }
+                });
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === videoModal) {
+                    videoModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                    
+                    // Pause video when closing modal
+                    const video = document.querySelector('.modal-video');
+                    if (video) {
+                        video.pause();
+                    }
+                }
+            });
+            
+            // Update notice based on video loading
+            if (videoPreview) {
+                videoPreview.addEventListener('loadeddata', function() {
                     if (notice) {
-                        notice.textContent = 'Video is playing. Use controls to pause or adjust volume.';
+                        notice.textContent = '✓ Video preview loaded. Click to watch full demo.';
                         notice.classList.remove('video-error');
                         notice.classList.add('video-success');
                     }
-                }).catch((error) => {
-                    console.error('Playback failed:', error);
-                    overlay.style.pointerEvents = '';
-                    
+                });
+                
+                videoPreview.addEventListener('error', function(e) {
+                    console.error('Video preview error:', videoPreview.error);
                     if (notice) {
-                        notice.textContent = 'Playback failed. Please try downloading the video file instead.';
+                        notice.textContent = '⚠ Video preview not available. Click button below to play/download.';
                         notice.classList.add('video-error');
                     }
-                    
-                    // Show error message in console for debugging
-                    if (video.error) {
-                        console.error('Video error code:', video.error.code);
-                        console.error('Video error message:', video.error.message);
-                    }
                 });
             }
-
-            // Add event listeners
-            overlay.addEventListener('click', playVideo);
-            playButton.addEventListener('click', playVideo);
-
-            // Hide overlay when video starts playing (also handles user clicking native controls)
-            video.addEventListener('play', function() {
-                overlay.classList.add('hidden');
-            });
-
-            // Show overlay when video is paused (except when ended)
-            video.addEventListener('pause', function() {
-                if (!video.ended) {
-                    overlay.classList.remove('hidden');
+            
+            // Add Font Awesome icons for features
+            const style = document.createElement('style');
+            style.textContent = `
+                .fas, .far, .fab {
+                    font-family: 'Font Awesome 6 Free';
+                    font-weight: 900;
                 }
-            });
-
-            // Show overlay and change notice when video ends
-            video.addEventListener('ended', function() {
-                overlay.classList.remove('hidden');
-                if (notice) {
-                    notice.textContent = 'Video finished. Tap to play again.';
-                    notice.classList.remove('video-error', 'video-success');
+                .feature i::before {
+                    font-family: 'Font Awesome 6 Free';
                 }
-            });
-
-            // Handle video errors
-            video.addEventListener('error', function(e) {
-                console.error('Video element error:', video.error);
-                
-                if (notice) {
-                    let errorDetail = 'Video error: ';
-                    if (video.error) {
-                        switch(video.error.code) {
-                            case 1: errorDetail += 'Video loading was aborted'; break;
-                            case 2: errorDetail += 'Network error - please check your connection'; break;
-                            case 3: errorDetail += 'Video decoding failed - file may be corrupted'; break;
-                            case 4: errorDetail += 'Video format not supported by your browser'; break;
-                            default: errorDetail += 'Unknown playback error';
-                        }
-                    }
-                    notice.textContent = errorDetail + '. Try downloading the video.';
-                    notice.classList.add('video-error');
-                }
-                
-                overlay.classList.remove('hidden');
-            });
-
-            // Show a loading message while video is buffering
-            video.addEventListener('waiting', function() {
-                if (notice && !video.ended) {
-                    notice.textContent = 'Video is loading...';
-                    notice.classList.remove('video-error', 'video-success');
-                }
-            });
-
-            // Update notice when video can play smoothly
-            video.addEventListener('canplay', function() {
-                if (notice && !video.ended) {
-                    notice.textContent = 'Video is ready. Tap the play button to start.';
-                    notice.classList.remove('video-error');
-                }
-            });
-
-            // ---------------------------
-            // Contact form (EmailJS) setup
-            // ---------------------------
-            try {
-                if (typeof emailjs !== 'undefined' && emailjs.init) {
-                    emailjs.init('KsVnmEbyLm6AZX8Ps');
-                }
-            } catch (err) {
-                console.warn('EmailJS not available:', err);
+            `;
+            document.head.appendChild(style);
+            
+            // Load Font Awesome if not already loaded
+            if (!document.querySelector('link[href*="font-awesome"]')) {
+                const faLink = document.createElement('link');
+                faLink.rel = 'stylesheet';
+                faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+                document.head.appendChild(faLink);
             }
-
-            (function() {
-                const contactForm = document.getElementById('contactForm');
-                if (!contactForm) return;
-
-                contactForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const submitBtn = contactForm.querySelector('button[type="submit"]');
-                    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending...'; }
-
-                    if (typeof emailjs !== 'undefined' && emailjs.sendForm) {
-                        emailjs.sendForm('service_qqqjdaf', 'template_cnktvpr', contactForm)
-                        .then(() => {
-                            alert('Message sent successfully!');
-                            contactForm.reset();
-                            if (submitBtn) { submitBtn.textContent = 'Send Message'; submitBtn.disabled = false; }
-                        })
-                        .catch((error) => {
-                            console.error('EmailJS Error:', error);
-                            alert('Failed to send message. Please try again later.');
-                            if (submitBtn) { submitBtn.textContent = 'Send Message'; submitBtn.disabled = false; }
-                        });
-                    } else {
-                        alert('Email service is unavailable. Please contact us via the listed email addresses.');
-                        if (submitBtn) { submitBtn.textContent = 'Send Message'; submitBtn.disabled = false; }
-                    }
-                });
-            })();
-
-        })();
+        });
     </script>
 </body>
 </html>
