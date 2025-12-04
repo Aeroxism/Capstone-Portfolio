@@ -530,22 +530,40 @@
             ];
 
             async function probePath(p){
+                // First try HEAD (fast) — some servers block HEAD requests.
                 try {
                     const res = await fetch(p, { method: 'HEAD' });
-                    return res && res.ok;
+                    if (res && res.ok) {
+                        console.log('probePath HEAD ok for', p, res.headers && res.headers.get ? res.headers.get('content-type') : null);
+                        return { ok: true, method: 'HEAD', contentType: res.headers && res.headers.get ? res.headers.get('content-type') : null };
+                    }
                 } catch (err) {
-                    return false;
+                    // ignore and try range GET next
                 }
+                // Try a small-range GET (many servers accept this even if HEAD is blocked)
+                try {
+                    const res2 = await fetch(p, { method: 'GET', headers: { 'Range': 'bytes=0-1023' } });
+                    if (res2 && (res2.ok || res2.status === 206)) {
+                        console.log('probePath Range GET ok for', p, 'status', res2.status, res2.headers && res2.headers.get ? res2.headers.get('content-type') : null);
+                        return { ok: true, method: 'RANGE', contentType: res2.headers && res2.headers.get ? res2.headers.get('content-type') : null };
+                    }
+                } catch (err) {
+                    // ignore
+                }
+                return { ok: false };
             }
 
             (async function findVideo(){
                 for (const p of tryPaths) {
-                    const ok = await probePath(p);
-                    if (ok) {
+                    const res = await probePath(p);
+                    if (res && res.ok) {
                         srcEl.src = p;
                         try { video.load(); } catch (e) {}
-                        if (notice) notice.textContent = 'Demo media loaded: ' + p;
-                        console.log('Video loaded from', p);
+                        const ct = res.contentType || '(unknown)';
+                        const method = res.method || '(method)';
+                        if (notice) notice.textContent = `Demo media loaded (${method}): ${p} — ${ct}`;
+                        console.log('Video loaded from', p, 'via', method, 'content-type:', ct);
+                        updateOpenLink();
                         return;
                     }
                 }
