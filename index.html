@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>TALA LINK – Capstone Portfolio</title>
     <meta name="description" content="TALA LINK: Patient Information Management and Medical Personnel Scheduling System – Capstone Portfolio" />
+    <meta name="theme-color" content="#0b0e12">
     <link rel="icon" href="qcu.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,8 +31,8 @@
             margin: 0;
             font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
             background: radial-gradient(1400px 800px at 80% -200px, rgba(34,211,238,0.15), transparent 60%),
-                                    radial-gradient(1000px 600px at -100px -300px, rgba(22,163,74,0.15), transparent 60%),
-                                    var(--bg);
+                        radial-gradient(1000px 600px at -100px -300px, rgba(22,163,74,0.15), transparent 60%),
+                        var(--bg);
             color: var(--text);
             line-height: 1.6;
         }
@@ -144,18 +145,146 @@
             header { position: sticky; }
             .nav a { padding: 8px 6px; }
         }
-        /* Video wrapper + mobile play button */
-        .video-wrap { position: relative; display: block; width: 100%; }
-        .video-play-btn {
-            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.45));
-            border-radius: 8px; cursor: pointer; opacity: 0; transition: opacity .18s ease;
+        
+        /* VIDEO FIXES FOR MOBILE */
+        .video-container {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin: 16px 0;
         }
-        .video-wrap:hover .video-play-btn, .video-play-btn.show { opacity: 1; }
-        .video-play-btn .btn-inner { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 999px; display:inline-flex; gap:10px; align-items:center; }
-        .video-open-link { display:block; margin-top:10px; color:var(--muted); font-size:0.95rem; }
-        @media (max-width:480px) {
-            .video-play-btn .btn-inner { padding: 12px 16px; }
+        
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+        }
+        
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            cursor: pointer;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .play-button {
+            background: rgba(22, 163, 74, 0.85);
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+        }
+        
+        .play-button:hover, .play-button:active {
+            background: rgba(22, 163, 74, 1);
+            transform: scale(1.05);
+        }
+        
+        .video-fallback {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(18, 22, 28, 0.7);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        
+        .fallback-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .video-notice {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+        
+        .video-error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+        
+        /* Mobile-specific video styles */
+        @media (max-width: 768px) {
+            .video-wrapper {
+                padding-bottom: 75%; /* 4:3 para sa mobile */
+            }
+            
+            .play-button {
+                width: 60px;
+                height: 60px;
+                font-size: 1.7rem;
+            }
+            
+            .video-container {
+                margin: 12px 0;
+            }
+            
+            .fallback-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .fallback-buttons .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .play-button {
+                width: 55px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+            
+            .video-wrapper {
+                padding-bottom: 100%; /* Square para sa very small screens */
+            }
         }
     </style>
 </head>
@@ -236,28 +365,44 @@
         </div>
     </section>
 
-    <!-- Demo Video -->
+    <!-- Demo Video - UPDATED FOR MOBILE -->
     <section id="demo">
         <div class="card section-card">
             <h2>System Demo</h2>
             <p style="color:var(--muted)">Watch the walkthrough of the Example system.</p>
-            <div class="card" style="padding:0;overflow:hidden">
-                <div class="video-wrap">
-                    <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" poster="qcu.png" style="width:100%;display:block;background:#000;border-radius:8px;" preload="metadata">
-                        <!-- Prefer H.264/AAC encoded MP4 for widest support -->
-                        <source id="demoSrc" src="System.mp4" type="video/mp4" />
+            
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" preload="metadata">
+                        <!-- Multiple formats for better compatibility -->
+                        <source id="mp4Source" src="System.mp4" type="video/mp4">
+                        <source id="webmSource" src="System.webm" type="video/webm">
                         Your browser does not support the video tag.
                     </video>
-                    <div class="video-play-btn" id="videoPlayBtn" role="button" aria-label="Play demo video">
-                        <div class="btn-inner">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                            <span>Tap to play</span>
+                    
+                    <div class="video-overlay" id="videoOverlay">
+                        <div class="play-button">
+                            ▶
                         </div>
                     </div>
                 </div>
-                <a id="openVideoLink" class="video-open-link" href="#" target="_blank" rel="noopener">Open video in new tab</a>
             </div>
-            <p id="videoNotice" style="margin-top:10px;color:var(--muted)">Demo media restored — playing from project root.</p>
+            
+            <div id="videoNotice" class="video-notice">
+                Tap the play button or video to start playback. If issues persist, use the links below.
+            </div>
+            
+            <div class="video-fallback">
+                <p style="margin-bottom:10px;color:var(--muted)">If video doesn't play, try these options:</p>
+                <div class="fallback-buttons">
+                    <a id="directVideoLink" href="System.mp4" class="btn" target="_blank" rel="noopener" style="background:var(--primary);">
+                        <span style="margin-right:8px">▶️</span> Open Video in New Tab
+                    </a>
+                    <a id="downloadVideoLink" href="System.mp4" class="btn" download style="background:var(--accent);color:#000;">
+                        <span style="margin-right:8px">📥</span> Download Video File
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -402,7 +547,7 @@
     <section id="contact">
         <div class="card section-card">
             <h2>Contact</h2>
-            <p>For questions, clarifications, or requests, we’re available for virtual or in-person meetings.</p>
+            <p>For questions, clarifications, or requests, we're available for virtual or in-person meetings.</p>
             <div class="grid-2">
                 <div class="card">
                     <h3>Email</h3>
@@ -514,120 +659,207 @@
             });
         })();
 
-        // Video path detection and helpful error messages for mobile
-        (function(){
+        // ===========================
+        // VIDEO PLAYBACK FIXES FOR MOBILE
+        // ===========================
+        (function() {
             const video = document.getElementById('demoVideo');
-            const srcEl = document.getElementById('demoSrc');
+            const overlay = document.getElementById('videoOverlay');
             const notice = document.getElementById('videoNotice');
-            if (!video || !srcEl) return;
-
-            const tryPaths = [
-                'System.mp4',
-                '/System.mp4',
-                '/Capstone-Portfolio/System.mp4',
-                'videos/System.mp4',
-                'media/System.mp4'
-            ];
-
-            async function probePath(p){
-                // First try HEAD (fast) — some servers block HEAD requests.
-                try {
-                    const res = await fetch(p, { method: 'HEAD' });
-                    if (res && res.ok) {
-                        console.log('probePath HEAD ok for', p, res.headers && res.headers.get ? res.headers.get('content-type') : null);
-                        return { ok: true, method: 'HEAD', contentType: res.headers && res.headers.get ? res.headers.get('content-type') : null };
-                    }
-                } catch (err) {
-                    // ignore and try range GET next
-                }
-                // Try a small-range GET (many servers accept this even if HEAD is blocked)
-                try {
-                    const res2 = await fetch(p, { method: 'GET', headers: { 'Range': 'bytes=0-1023' } });
-                    if (res2 && (res2.ok || res2.status === 206)) {
-                        console.log('probePath Range GET ok for', p, 'status', res2.status, res2.headers && res2.headers.get ? res2.headers.get('content-type') : null);
-                        return { ok: true, method: 'RANGE', contentType: res2.headers && res2.headers.get ? res2.headers.get('content-type') : null };
-                    }
-                } catch (err) {
-                    // ignore
-                }
-                return { ok: false };
-            }
-
-            (async function findVideo(){
-                for (const p of tryPaths) {
-                    const res = await probePath(p);
-                    if (res && res.ok) {
-                        srcEl.src = p;
-                        try { video.load(); } catch (e) {}
-                        const ct = res.contentType || '(unknown)';
-                        const method = res.method || '(method)';
-                        if (notice) notice.textContent = `Demo media loaded (${method}): ${p} — ${ct}`;
-                        console.log('Video loaded from', p, 'via', method, 'content-type:', ct);
-                        updateOpenLink();
-                        return;
-                    }
-                }
-                if (notice) notice.textContent = 'Demo media not found — confirm file path on server.';
-                console.warn('Video not found on any known paths:', tryPaths);
-            })();
-
-            video.addEventListener('error', (ev) => {
-                console.warn('Video error event', ev, video.currentSrc);
-                if (notice) notice.textContent = 'Video could not be played on this device. Try opening the file directly or check server CORS/path.';
-            });
-
-            video.addEventListener('loadedmetadata', () => {
-                console.log('Video metadata loaded', video.currentSrc);
-            });
-            // Mobile tap-to-play handling: try playing on user tap and report detailed errors
-            const playBtn = document.getElementById('videoPlayBtn');
-            const openLink = document.getElementById('openVideoLink');
-            function updateOpenLink() {
-                try { openLink.href = video.currentSrc || srcEl.src || '#'; } catch(e) { openLink.href = '#'; }
-            }
-            updateOpenLink();
-
-            if (playBtn) {
-                playBtn.addEventListener('click', async (ev) => {
-                    ev.preventDefault(); ev.stopPropagation();
-                    playBtn.classList.add('show');
+            const directLink = document.getElementById('directVideoLink');
+            const downloadLink = document.getElementById('downloadVideoLink');
+            
+            if (!video) return;
+            
+            // Function to check video availability
+            async function checkVideoAvailability() {
+                const videoPaths = [
+                    'System.mp4',
+                    '/System.mp4',
+                    'videos/System.mp4',
+                    'media/System.mp4',
+                    '../System.mp4'
+                ];
+                
+                for (const path of videoPaths) {
                     try {
-                        updateOpenLink();
-                        const playPromise = video.play();
-                        if (playPromise !== undefined) {
-                            await playPromise;
+                        const response = await fetch(path, { method: 'HEAD' });
+                        if (response.ok) {
+                            console.log(`Video found at: ${path}`);
+                            
+                            // Update video sources
+                            const mp4Source = document.getElementById('mp4Source');
+                            if (mp4Source) mp4Source.src = path;
+                            
+                            // Update direct links
+                            if (directLink) directLink.href = path;
+                            if (downloadLink) downloadLink.href = path;
+                            
+                            // Update video src if direct source
+                            if (video.src) {
+                                video.src = path;
+                                video.load();
+                            }
+                            
+                            if (notice) {
+                                notice.textContent = 'Video ready. Tap play button to start.';
+                                notice.classList.remove('video-error');
+                            }
+                            
+                            return true;
                         }
-                        // hide the overlay when playing
-                        playBtn.classList.remove('show');
-                    } catch (err) {
-                        console.warn('Playback failed', err);
-                        if (notice) notice.textContent = 'Playback prevented: ' + (err && err.message ? err.message : String(err));
-                        // if playback blocked, offer the open link
-                        updateOpenLink();
+                    } catch (error) {
+                        console.log(`Video not found at: ${path}`);
                     }
-                });
+                }
+                
+                // If no video found
+                if (notice) {
+                    notice.textContent = 'Video file not found. Please check the file path or use the download links.';
+                    notice.classList.add('video-error');
+                }
+                
+                return false;
             }
-
-            // Map HTMLMediaElement error codes to readable messages
-            function mediaErrorMessage(err) {
-                if (!err) return 'Unknown error';
-                const code = err.code;
-                switch(code) {
-                    case 1: return 'MEDIA_ERR_ABORTED: fetching process aborted by user.';
-                    case 2: return 'MEDIA_ERR_NETWORK: network error occurred while fetching media.';
-                    case 3: return 'MEDIA_ERR_DECODE: decoding error; format may not be supported.';
-                    case 4: return 'MEDIA_ERR_SRC_NOT_SUPPORTED: media format not supported or CORS issue.';
-                    default: return 'Unknown media error code: ' + code;
+            
+            // Check video availability on load
+            checkVideoAvailability();
+            
+            // Mobile detection
+            function isMobileDevice() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+            
+            // Mobile-specific setup
+            if (isMobileDevice()) {
+                // Force mobile-friendly attributes
+                video.setAttribute('playsinline', '');
+                video.setAttribute('webkit-playsinline', '');
+                video.setAttribute('muted', 'true'); // Muted autoplay works better on mobile
+                
+                // Preload metadata for faster start
+                video.preload = 'metadata';
+                
+                // Update notice for mobile
+                if (notice) {
+                    notice.textContent = 'Tap play button to start. Some mobile browsers may require full screen mode.';
                 }
             }
-
-            video.addEventListener('error', (ev) => {
-                const e = video.error;
-                const msg = mediaErrorMessage(e);
-                console.warn('Video error', e, video.currentSrc, msg);
-                if (notice) notice.textContent = 'Video error: ' + msg + ' — open in new tab to inspect.';
-                updateOpenLink();
+            
+            // Play video function
+            async function playVideo() {
+                try {
+                    // Hide overlay
+                    overlay.classList.add('hidden');
+                    
+                    // Show controls
+                    video.controls = true;
+                    
+                    // Try to play
+                    const playPromise = video.play();
+                    
+                    if (playPromise !== undefined) {
+                        await playPromise;
+                        // Success
+                        if (notice) {
+                            notice.textContent = 'Video playing. Tap video for controls.';
+                            notice.classList.remove('video-error');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Playback error:', error);
+                    
+                    // Show error message
+                    if (notice) {
+                        let errorMsg = 'Playback failed. ';
+                        
+                        if (error.name === 'NotAllowedError') {
+                            errorMsg += 'Autoplay blocked by browser. Please tap the video controls directly.';
+                        } else if (error.name === 'NotSupportedError') {
+                            errorMsg += 'Video format not supported. Please use the download links.';
+                        } else {
+                            errorMsg += error.message || 'Unknown error.';
+                        }
+                        
+                        notice.textContent = errorMsg;
+                        notice.classList.add('video-error');
+                    }
+                    
+                    // Show overlay again
+                    overlay.classList.remove('hidden');
+                    
+                    // Update direct links based on current video source
+                    const currentSrc = video.currentSrc || video.src;
+                    if (currentSrc && directLink) {
+                        directLink.href = currentSrc;
+                        downloadLink.href = currentSrc;
+                    }
+                }
+            }
+            
+            // Overlay click handler
+            overlay.addEventListener('click', playVideo);
+            
+            // Video click handler (for when controls are shown)
+            video.addEventListener('click', function(e) {
+                if (!video.controls) {
+                    playVideo();
+                }
             });
+            
+            // Handle video events
+            video.addEventListener('play', function() {
+                overlay.classList.add('hidden');
+            });
+            
+            video.addEventListener('pause', function() {
+                if (!video.ended) {
+                    overlay.classList.remove('hidden');
+                }
+            });
+            
+            video.addEventListener('ended', function() {
+                overlay.classList.remove('hidden');
+                if (notice) {
+                    notice.textContent = 'Video finished. Tap to play again.';
+                }
+            });
+            
+            video.addEventListener('error', function(e) {
+                console.error('Video error:', video.error);
+                
+                if (notice) {
+                    let errorDetail = 'Video error: ';
+                    switch(video.error.code) {
+                        case 1: errorDetail += 'Aborted'; break;
+                        case 2: errorDetail += 'Network error'; break;
+                        case 3: errorDetail += 'Decoding error'; break;
+                        case 4: errorDetail += 'Format not supported'; break;
+                        default: errorDetail += 'Unknown error';
+                    }
+                    
+                    notice.textContent = errorDetail + '. Please try the download links.';
+                    notice.classList.add('video-error');
+                }
+                
+                overlay.classList.remove('hidden');
+            });
+            
+            // Update links when video source changes
+            video.addEventListener('loadedmetadata', function() {
+                if (video.currentSrc && directLink) {
+                    directLink.href = video.currentSrc;
+                    downloadLink.href = video.currentSrc;
+                }
+            });
+            
+            // Fallback: if video doesn't load, update links after 3 seconds
+            setTimeout(() => {
+                if (!video.currentSrc || video.error) {
+                    checkVideoAvailability();
+                }
+            }, 3000);
+            
         })();
     </script>
 </body>
