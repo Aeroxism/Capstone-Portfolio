@@ -593,6 +593,24 @@
                     <p>We humbly seek your support and approval to implement our project within your institution. Your guidance and cooperation are deeply valued.</p>
                 </div>
             </div>
+            <div class="card" style="margin-top:12px">
+                <h3>Send a Message</h3>
+                <form id="contactForm" class="contact-form" novalidate>
+                    <div class="form-group">
+                        <label for="cf-name">Name</label>
+                        <input id="cf-name" name="from_name" type="text" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="cf-email">Email</label>
+                        <input id="cf-email" name="reply_to" type="email" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="cf-message">Message</label>
+                        <textarea id="cf-message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Send Message</button>
+                </form>
+            </div>
         </div>
     </section>
 
@@ -604,6 +622,8 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
     <script>
         // Smooth scroll for nav links
         document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -797,6 +817,45 @@
                     notice.classList.remove('video-error');
                 }
             });
+
+            // ---------------------------
+            // Contact form (EmailJS) setup
+            // ---------------------------
+            try {
+                if (typeof emailjs !== 'undefined' && emailjs.init) {
+                    emailjs.init('KsVnmEbyLm6AZX8Ps');
+                }
+            } catch (err) {
+                console.warn('EmailJS not available:', err);
+            }
+
+            (function() {
+                const contactForm = document.getElementById('contactForm');
+                if (!contactForm) return;
+
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Sending...'; }
+
+                    if (typeof emailjs !== 'undefined' && emailjs.sendForm) {
+                        emailjs.sendForm('service_qqqjdaf', 'template_cnktvpr', contactForm)
+                        .then(() => {
+                            alert('Message sent successfully!');
+                            contactForm.reset();
+                            if (submitBtn) { submitBtn.textContent = 'Send Message'; submitBtn.disabled = false; }
+                        })
+                        .catch((error) => {
+                            console.error('EmailJS Error:', error);
+                            alert('Failed to send message. Please try again later.');
+                            if (submitBtn) { submitBtn.textContent = 'Send Message'; submitBtn.disabled = false; }
+                        });
+                    } else {
+                        alert('Email service is unavailable. Please contact us via the listed email addresses.');
+                        if (submitBtn) { submitBtn.textContent = 'Send Message'; submitBtn.disabled = false; }
+                    }
+                });
+            })();
 
         })();
     </script>
