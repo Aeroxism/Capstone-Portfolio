@@ -377,7 +377,7 @@
                         <!-- Video hosted on Cloudinary CDN (free) - works worldwide -->
                         <source id="mp4Source" src="https://res.cloudinary.com/YOUR-CLOUD-NAME/video/upload/v1/System.mp4" type="video/mp4">
                         <!-- Fallback: local file if you have it -->
-                        <source id="mp4LocalSource" src="System.mp4" type="video/mp4; codecs='avc1.42E01E, mp4a.40.2'">
+                        <source id="mp4LocalSource" src="mp4/System.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
                         Your browser does not support the video tag.
                     </video>
                     
@@ -396,10 +396,10 @@
             <div class="video-fallback">
                 <p style="margin-bottom:10px;color:var(--muted)">If video doesn't play, try these options:</p>
                 <div class="fallback-buttons">
-                    <a id="directVideoLink" href="System.mp4" class="btn" target="_blank" rel="noopener" style="background:var(--primary);color:#fff;">
+                    <a id="directVideoLink" href="mp4/System.mp4" class="btn" target="_blank" rel="noopener" style="background:var(--primary);color:#fff;">
                         <span style="margin-right:8px">▶️</span> Open in Player
                     </a>
-                    <a id="downloadVideoLink" href="System.mp4" class="btn" download style="background:var(--accent);color:#000;font-weight:600;">
+                    <a id="downloadVideoLink" href="mp4/System.mp4" class="btn" download style="background:var(--accent);color:#000;font-weight:600;">
                         <span style="margin-right:8px">📥</span> Download File
                     </a>
                 </div>
