@@ -101,9 +101,10 @@
             display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
             padding: 10px 16px; border: 1px solid var(--border); cursor: pointer;
             background: #0e1318; color: var(--text);
+            transition: all 0.2s ease;
         }
         .btn.primary { background: linear-gradient(135deg, var(--primary-700), var(--primary)); border-color: transparent; }
-        .btn:hover { filter: brightness(1.1); }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
 
         /* Sections */
         section { max-width: var(--maxw); margin: 16px auto; padding: 0 24px; }
@@ -182,7 +183,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 10;
             cursor: pointer;
             opacity: 1;
@@ -195,7 +196,7 @@
         }
         
         .play-button {
-            background: rgba(22, 163, 74, 0.85);
+            background: rgba(22, 163, 74, 0.9);
             border: 3px solid white;
             border-radius: 50%;
             width: 70px;
@@ -205,13 +206,14 @@
             justify-content: center;
             color: white;
             font-size: 2rem;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
             transition: all 0.2s ease;
+            cursor: pointer;
         }
         
         .play-button:hover, .play-button:active {
             background: rgba(22, 163, 74, 1);
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
         
         .video-fallback {
@@ -233,12 +235,19 @@
         
         .video-notice {
             margin-top: 10px;
-            padding: 10px;
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 12px;
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.3);
             border-radius: 8px;
-            color: #ffc107;
+            color: #22d3ee;
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .video-notice:before {
+            content: "ℹ️";
         }
         
         .video-error {
@@ -247,16 +256,44 @@
             color: #dc3545;
         }
         
+        .video-error:before {
+            content: "❌";
+        }
+        
+        .video-success {
+            background: rgba(22, 163, 74, 0.1);
+            border: 1px solid rgba(22, 163, 74, 0.3);
+            color: #16a34a;
+        }
+        
+        .video-success:before {
+            content: "✅";
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         /* Mobile-specific video styles */
         @media (max-width: 768px) {
             .video-wrapper {
-                padding-bottom: 75%; /* 4:3 para sa mobile */
+                padding-bottom: 56.25%; /* Keep 16:9 for mobile */
             }
             
             .play-button {
-                width: 60px;
-                height: 60px;
-                font-size: 1.7rem;
+                width: 65px;
+                height: 65px;
+                font-size: 1.8rem;
             }
             
             .video-container {
@@ -277,13 +314,13 @@
         
         @media (max-width: 480px) {
             .play-button {
-                width: 55px;
-                height: 55px;
-                font-size: 1.5rem;
+                width: 60px;
+                height: 60px;
+                font-size: 1.6rem;
             }
             
             .video-wrapper {
-                padding-bottom: 100%; /* Square para sa very small screens */
+                padding-bottom: 56.25%; /* Keep 16:9 even for very small screens */
             }
         }
     </style>
@@ -365,24 +402,22 @@
         </div>
     </section>
 
-    <!-- Demo Video - UPDATED FOR MOBILE -->
+    <!-- Demo Video - FIXED VERSION -->
     <section id="demo">
         <div class="card section-card">
             <h2>System Demo</h2>
-            <p style="color:var(--muted)">Watch the walkthrough of the Example system.</p>
+            <p style="color:var(--muted)">Watch the walkthrough of the TALA LINK system.</p>
             
             <div class="video-container">
                 <div class="video-wrapper">
-                    <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" preload="metadata" crossorigin="anonymous">
-                        <!-- Video hosted on Cloudinary CDN (free) - works worldwide -->
-                        <source id="mp4Source" src="https://res.cloudinary.com/YOUR-CLOUD-NAME/video/upload/v1/System.mp4" type="video/mp4">
-                        <!-- Fallback: local file if you have it -->
-                        <source id="mp4LocalSource" src="mp4/System.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+                    <!-- SIMPLIFIED VIDEO TAG - Direct loading -->
+                    <video id="demoVideo" controls playsinline preload="metadata">
+                        <source src="mp4/System.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                     
                     <div class="video-overlay" id="videoOverlay">
-                        <div class="play-button">
+                        <div class="play-button" id="playButton">
                             ▶
                         </div>
                     </div>
@@ -390,24 +425,13 @@
             </div>
             
             <div id="videoNotice" class="video-notice">
-                Tap the play button or video to start playback. If issues persist, use the links below.
+                Tap the play button to start the video (42.3 MB). For best results on mobile, a stable Wi-Fi connection is recommended.
             </div>
             
             <div class="video-fallback">
-                <p style="margin-bottom:10px;color:var(--muted)">If video doesn't play, try these options:</p>
-                <div id="qualitySelector" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
-                    <button class="btn" id="qualityAuto" data-quality="auto" title="Auto-select quality based on your connection">Auto (recommended)</button>
-                    <button class="btn" id="qualityLow" data-quality="low" title="Prefer low bandwidth/resolution">Low quality</button>
-                    <button class="btn" id="qualityOrig" data-quality="original" title="Prefer original file">Original</button>
-                </div>
-                <div style="text-align:center;margin-bottom:8px;color:var(--muted);font-size:0.95rem;" id="qualityNote">Detected file: <strong>System.mp4</strong> (~43.5 MB). Low-res fallback will be used on slow connections when available.</div>
-
                 <div class="fallback-buttons">
-                    <a id="directVideoLink" href="mp4/System.mp4" class="btn" target="_blank" rel="noopener" style="background:var(--primary);color:#fff;">
-                        <span style="margin-right:8px">▶️</span> Open in Player
-                    </a>
-                    <a id="downloadVideoLink" href="mp4/System.mp4" class="btn" download style="background:var(--accent);color:#000;font-weight:600;">
-                        <span style="margin-right:8px">📥</span> Download File
+                    <a href="mp4/System.mp4" class="btn" target="_blank" style="background:var(--primary);color:#fff;" download="TALA_LINK_Demo.mp4">
+                        <span style="margin-right:8px">📥</span> Download Video (42.3 MB)
                     </a>
                 </div>
             </div>
@@ -668,339 +692,112 @@
         })();
 
         // ===========================
-        // VIDEO PLAYBACK FIXES FOR MOBILE (No Server Config Required)
+        // SIMPLIFIED VIDEO PLAYBACK FIX
         // ===========================
         (function() {
             const video = document.getElementById('demoVideo');
             const overlay = document.getElementById('videoOverlay');
+            const playButton = document.getElementById('playButton');
             const notice = document.getElementById('videoNotice');
-            const directLink = document.getElementById('directVideoLink');
-            const downloadLink = document.getElementById('downloadVideoLink');
 
-            // Quality selection: 'auto' | 'low' | 'original'
-            let selectedQuality = 'auto';
-            const qualityNoteEl = document.getElementById('qualityNote');
-            const qualityButtons = {
-                auto: document.getElementById('qualityAuto'),
-                low: document.getElementById('qualityLow'),
-                original: document.getElementById('qualityOrig')
-            };
+            if (!video || !overlay) return;
 
-            // Candidate paths for variants
-            const VAR_ORIG = 'mp4/System.mp4';
-            const VAR_LOW = 'mp4/System_480.mp4'; // expected low-res variant (create with ffmpeg if missing)
+            // Initialize video for mobile
+            video.setAttribute('playsinline', '');
+            video.setAttribute('webkit-playsinline', '');
 
-            function setQuality(q) {
-                if (!q) return;
-                selectedQuality = q;
-                // UI states
-                Object.keys(qualityButtons).forEach(k => {
-                    const btn = qualityButtons[k];
-                    if (!btn) return;
-                    if (k === (q === 'original' ? 'original' : q === 'low' ? 'low' : 'auto')) {
-                        btn.classList.add('primary');
-                        btn.style.borderColor = 'transparent';
-                    } else {
-                        btn.classList.remove('primary');
-                        btn.style.borderColor = '';
-                    }
-                });
-
-                if (qualityNoteEl) {
-                    if (q === 'low') qualityNoteEl.textContent = 'Low quality selected. If the low file is missing, the original will be used.';
-                    else if (q === 'original') qualityNoteEl.textContent = 'Original file selected.';
-                    else qualityNoteEl.textContent = 'Auto: will prefer low quality on slow connections if available.';
-                }
-
-                // Reload video sources with the new quality preference
-                loadVideoFile();
-            }
-
-            // Attach listeners
-            Object.keys(qualityButtons).forEach(k => {
-                const btn = qualityButtons[k];
-                if (!btn) return;
-                btn.addEventListener('click', (e) => { e.preventDefault(); setQuality(k === 'auto' ? 'auto' : k === 'low' ? 'low' : 'original'); });
-            });
-            
-            if (!video) return;
-            
-            // Function to load video file directly with quality preference
-            async function loadVideoFile() {
-                // Determine preferred candidate list based on selectedQuality
-                let candidates = [];
-
-                // Helper: build fallback candidate list
-                function buildCandidates(preferLow) {
-                    const list = [];
-                    if (preferLow) list.push(VAR_LOW);
-                    list.push(VAR_ORIG);
-                    // other fallbacks
-                    list.push('System.mp4');
-                    list.push('/Capstone-Portfolio/mp4/System.mp4');
-                    return list;
-                }
-
-                // If opened locally via file://, avoid fetch; try to use declared sources
-                if (location.protocol === 'file:') {
-                    const mp4Local = document.getElementById('mp4LocalSource');
-                    const src = (selectedQuality === 'low' ? VAR_LOW : (selectedQuality === 'original' ? VAR_ORIG : (mp4Local && mp4Local.getAttribute('src')))) || VAR_ORIG;
-                    video.src = src;
-                    video.load();
-                    if (directLink) directLink.href = src;
-                    if (downloadLink) downloadLink.href = src;
-                    if (notice) {
-                        notice.textContent = '✓ Local file ready (file://). Tap to play.';
-                        notice.classList.remove('video-error');
-                    }
-                    return true;
-                }
-
-                // If 'auto', inspect network to prefer low on slow connections
-                let preferLow = false;
-                if (selectedQuality === 'auto') {
-                    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-                    try {
-                        const saveData = conn && conn.saveData;
-                        const downlink = conn && conn.downlink ? conn.downlink : null; // Mbps
-                        if (saveData || (downlink !== null && downlink < 1.5)) preferLow = true;
-                    } catch (e) {
-                        preferLow = true; // be conservative
-                    }
-                } else if (selectedQuality === 'low') {
-                    preferLow = true;
-                }
-
-                candidates = buildCandidates(preferLow);
-
-                for (const p of candidates) {
-                    try {
-                        const response = await fetch(p, { method: 'GET' });
-                        if (response.ok) {
-                            const contentType = response.headers.get('Content-Type') || response.headers.get('content-type') || '';
-                            const blob = await response.blob();
-                            console.log(`Fetched ${p} — content-type: ${contentType}; size: ${blob.size} bytes`);
-
-                            // Only treat as a video blob if the content-type indicates video and size looks reasonable
-                            const isVideoType = /video\//i.test(contentType);
-                            const MIN_VIDEO_BYTES = 2000; // small heuristic: blobs smaller than this likely not real video
-
-                            if (isVideoType && blob.size > MIN_VIDEO_BYTES) {
-                                const blobUrl = URL.createObjectURL(blob);
-                                const mp4Source = document.getElementById('mp4Source');
-                                if (mp4Source) mp4Source.src = blobUrl;
-                                video.src = blobUrl;
-                                video.load();
-                                if (directLink) directLink.href = blobUrl;
-                                if (downloadLink) {
-                                    downloadLink.href = blobUrl;
-                                    downloadLink.download = 'System.mp4';
-                                }
-                                if (notice) {
-                                    notice.textContent = '✓ Video ready. Tap the play button to start.';
-                                    notice.classList.remove('video-error');
-                                    notice.style.background = 'rgba(34, 211, 238, 0.1)';
-                                    notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
-                                    notice.style.color = '#22d3ee';
-                                }
-                                return true;
-                            }
-
-                            // If the fetched resource isn't a video (or is tiny), skip using the blob and fall back below
-                            console.warn(`Skipping fetched resource for ${p}: not a video or too small (type=${contentType}, size=${blob.size})`);
-                        }
-                    } catch (err) {
-                        console.log(`Video not found or fetch failed at ${p}:`, err);
-                        // try next candidate
-                    }
-                }
-                // As a fallback: set the video.src to a candidate path directly and let the browser request it.
-                // This helps when the server returns an HTML page for fetch (e.g. a redirect or placeholder) but
-                // the browser would still be able to request the correct static file when using the <video> element.
-                for (const p of candidates) {
-                    try {
-                        // set src directly and test if the browser accepts the type by checking canPlayType
-                        video.removeAttribute('src');
-                        const mp4Source = document.getElementById('mp4Source');
-                        if (mp4Source) mp4Source.src = p;
-                        video.src = p;
-                        // update fallback links to point to the path (not blob)
-                        if (directLink) directLink.href = p;
-                        if (downloadLink) downloadLink.href = p;
-                        // Let the browser attempt to load headers; wait briefly to see if readyState changes
-                        await new Promise(resolve => setTimeout(resolve, 200));
-                        // If browser thinks the type is playable (based on extension/headers), accept this source
-                        const canPlay = video.canPlayType('video/mp4');
-                        if (canPlay === 'probably' || canPlay === 'maybe') {
-                            if (notice) {
-                                notice.textContent = '✓ Video will be loaded by the browser from ' + p + '. Tap play to start.';
-                                notice.classList.remove('video-error');
-                            }
-                            return true;
-                        }
-                    } catch (err) {
-                        // ignore and try next path
-                        console.log('Direct src test failed for', p, err);
-                    }
-                }
-
-                // If none of the local paths succeeded, allow the video element to use CDN source defined in HTML
-                setTimeout(() => {
-                    const srcAttr = video.currentSrc || (document.getElementById('mp4Source') && document.getElementById('mp4Source').src);
-                    if (srcAttr) {
-                        if (notice) {
-                            notice.textContent = '✓ Video streaming from CDN. Tap to play.';
-                            notice.classList.remove('video-error');
-                        }
-                    } else {
-                        if (notice) {
-                            notice.textContent = '❌ Video not found locally and CDN source unavailable.';
-                            notice.classList.add('video-error');
-                        }
-                    }
-                }, 800);
-
-                return false;
-            }
-            
-            // Mobile detection
-            function isMobileDevice() {
-                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            }
-            
-            // Mobile-specific setup
-            if (isMobileDevice()) {
-                // Ensure mobile attributes
-                video.setAttribute('playsinline', '');
-                video.setAttribute('webkit-playsinline', '');
-                video.setAttribute('x-webkit-airplay', 'allow');
-                video.removeAttribute('muted');
-                video.preload = 'metadata';
-                
-                if (notice) {
-                    notice.textContent = 'Loading video... Please wait.';
-                }
-            }
-            
-            // Play video function (improved handling for interrupted play() calls)
-            async function playVideo() {
-                // Prevent multiple clicks while attempting playback
+            // Play video when overlay is clicked
+            function playVideo() {
                 overlay.style.pointerEvents = 'none';
-                try {
-                    if (notice) {
-                        notice.textContent = 'Starting video...';
-                        notice.classList.remove('video-error');
-                    }
-
-                    // Try to play; don't enable controls until play succeeds
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        await playPromise;
-                    }
-
-                    video.controls = true;
+                video.play().then(() => {
                     overlay.classList.add('hidden');
-                    overlay.style.pointerEvents = '';
-
+                    // Ensure controls are visible
+                    video.controls = true;
                     if (notice) {
-                        notice.textContent = '▶ Video playing. Tap for controls.';
+                        notice.textContent = 'Video is playing. Use controls to pause or adjust volume.';
                         notice.classList.remove('video-error');
+                        notice.classList.add('video-success');
                     }
-                } catch (error) {
-                    console.error('Playback error:', error);
+                }).catch((error) => {
+                    console.error('Playback failed:', error);
                     overlay.style.pointerEvents = '';
-
+                    
                     if (notice) {
-                        let errorMsg = '❌ Playback failed. ';
-                        if (error && error.name === 'NotAllowedError') {
-                            errorMsg = '⚠ Tap the play button in the video controls to start playback.';
-                        } else if (error && error.name === 'NotSupportedError') {
-                            errorMsg = '❌ Video format not supported by your browser. Try downloading the file.';
-                        } else if (error && error.name === 'AbortError') {
-                            errorMsg = '❌ Playback interrupted. Retrying...';
-                        } else {
-                            errorMsg += error && error.message ? error.message : String(error);
-                        }
-                        notice.textContent = errorMsg;
+                        notice.textContent = 'Playback failed. Please try downloading the video file instead.';
                         notice.classList.add('video-error');
                     }
-
-                    // If play was interrupted, retry once after a short delay
-                    const msg = error && (error.name === 'AbortError' || /interrupt/i.test(error.message || ''));
-                    if (msg) {
-                        setTimeout(async () => {
-                            try {
-                                if (notice) notice.textContent = 'Retrying playback...';
-                                const p2 = video.play();
-                                if (p2 !== undefined) await p2;
-                                video.controls = true;
-                                overlay.classList.add('hidden');
-                                if (notice) {
-                                    notice.textContent = '▶ Video playing after retry.';
-                                    notice.classList.remove('video-error');
-                                }
-                            } catch (err2) {
-                                console.error('Playback retry failed:', err2);
-                                if (notice) notice.textContent = '❌ Playback retry failed. Try downloading the file.';
-                                overlay.classList.remove('hidden');
-                            }
-                        }, 250);
-                    } else {
-                        overlay.classList.remove('hidden');
+                    
+                    // Show error message in console for debugging
+                    if (video.error) {
+                        console.error('Video error code:', video.error.code);
+                        console.error('Video error message:', video.error.message);
                     }
-                }
+                });
             }
-            
-            // Event listeners
+
+            // Add event listeners
             overlay.addEventListener('click', playVideo);
-            
-            video.addEventListener('click', function(e) {
-                if (!video.controls) {
-                    playVideo();
-                }
-            });
-            
+            playButton.addEventListener('click', playVideo);
+
+            // Hide overlay when video starts playing (also handles user clicking native controls)
             video.addEventListener('play', function() {
                 overlay.classList.add('hidden');
             });
-            
+
+            // Show overlay when video is paused (except when ended)
             video.addEventListener('pause', function() {
                 if (!video.ended) {
                     overlay.classList.remove('hidden');
                 }
             });
-            
+
+            // Show overlay and change notice when video ends
             video.addEventListener('ended', function() {
                 overlay.classList.remove('hidden');
                 if (notice) {
-                    notice.textContent = '✓ Video finished. Tap to play again.';
+                    notice.textContent = 'Video finished. Tap to play again.';
+                    notice.classList.remove('video-error', 'video-success');
                 }
             });
-            
+
+            // Handle video errors
             video.addEventListener('error', function(e) {
-                console.error('Video error:', video.error);
+                console.error('Video element error:', video.error);
                 
                 if (notice) {
-                    let errorDetail = '❌ Video error: ';
+                    let errorDetail = 'Video error: ';
                     if (video.error) {
                         switch(video.error.code) {
-                            case 1: errorDetail += 'Aborted'; break;
-                            case 2: errorDetail += 'Network error - file may be corrupted'; break;
-                            case 3: errorDetail += 'Decoding failed - codec not supported'; break;
-                            case 4: errorDetail += 'Format not supported'; break;
-                            default: errorDetail += 'Unknown error';
+                            case 1: errorDetail += 'Video loading was aborted'; break;
+                            case 2: errorDetail += 'Network error - please check your connection'; break;
+                            case 3: errorDetail += 'Video decoding failed - file may be corrupted'; break;
+                            case 4: errorDetail += 'Video format not supported by your browser'; break;
+                            default: errorDetail += 'Unknown playback error';
                         }
                     }
-                    notice.textContent = errorDetail + '. Try downloading the file instead.';
+                    notice.textContent = errorDetail + '. Try downloading the video.';
                     notice.classList.add('video-error');
                 }
                 
                 overlay.classList.remove('hidden');
             });
-            
-            // Load video when page is ready
-            loadVideoFile();
-            
+
+            // Show a loading message while video is buffering
+            video.addEventListener('waiting', function() {
+                if (notice && !video.ended) {
+                    notice.textContent = 'Video is loading...';
+                    notice.classList.remove('video-error', 'video-success');
+                }
+            });
+
+            // Update notice when video can play smoothly
+            video.addEventListener('canplay', function() {
+                if (notice && !video.ended) {
+                    notice.textContent = 'Video is ready. Tap the play button to start.';
+                    notice.classList.remove('video-error');
+                }
+            });
+
         })();
     </script>
 </body>
