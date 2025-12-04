@@ -514,6 +514,30 @@
         </div>
     </section>
 
+    <!-- Projects -->
+    <section id="projects">
+        <div class="card section-card">
+            <h2>Projects</h2>
+            <p style="color:var(--muted)">Selected projects and demos.</p>
+            <div class="grid-2" style="margin-top:10px">
+                <div class="card">
+                    <h3>System Demo (Video)</h3>
+                    <p>Full walkthrough video demonstrating the Patient Information Management and Medical Personnel Scheduling System.</p>
+                    <div style="text-align:center; margin-top:14px">
+                        <button id="viewDemoProjectBtn" class="btn primary">View Project</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Proposal / Documentation</h3>
+                    <p>Downloadable project proposal and documentation for review.</p>
+                    <div style="text-align:center; margin-top:14px">
+                        <a href="TALA_LINK_PORTFOLIO.pdf" class="btn" download>Download Proposal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Objectives -->
     <section id="objectives">
         <div class="card section-card">
@@ -802,6 +826,12 @@
             
             // Event Listeners
             playVideoBtn.addEventListener('click', showVideoModal);
+
+            // Wire project button to open the same demo video modal
+            const viewDemoProjectBtn = document.getElementById('viewDemoProjectBtn');
+            if (viewDemoProjectBtn) {
+                viewDemoProjectBtn.addEventListener('click', showVideoModal);
+            }
             
             // Also make the video preview clickable
             if (videoPreview) {
