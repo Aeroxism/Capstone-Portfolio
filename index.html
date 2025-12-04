@@ -144,6 +144,19 @@
             header { position: sticky; }
             .nav a { padding: 8px 6px; }
         }
+        /* Video wrapper + mobile play button */
+        .video-wrap { position: relative; display: block; width: 100%; }
+        .video-play-btn {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.45));
+            border-radius: 8px; cursor: pointer; opacity: 0; transition: opacity .18s ease;
+        }
+        .video-wrap:hover .video-play-btn, .video-play-btn.show { opacity: 1; }
+        .video-play-btn .btn-inner { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 999px; display:inline-flex; gap:10px; align-items:center; }
+        .video-open-link { display:block; margin-top:10px; color:var(--muted); font-size:0.95rem; }
+        @media (max-width:480px) {
+            .video-play-btn .btn-inner { padding: 12px 16px; }
+        }
     </style>
 </head>
 <body>
@@ -229,11 +242,20 @@
             <h2>System Demo</h2>
             <p style="color:var(--muted)">Watch the walkthrough of the Example system.</p>
             <div class="card" style="padding:0;overflow:hidden">
-                <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" poster="qcu.png" style="width:100%;display:block;background:#000" preload="metadata">
-                    <!-- Prefer H.264/AAC encoded MP4 for widest support -->
-                    <source id="demoSrc" src="System.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
+                <div class="video-wrap">
+                    <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" poster="qcu.png" style="width:100%;display:block;background:#000;border-radius:8px;" preload="metadata">
+                        <!-- Prefer H.264/AAC encoded MP4 for widest support -->
+                        <source id="demoSrc" src="System.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="video-play-btn" id="videoPlayBtn" role="button" aria-label="Play demo video">
+                        <div class="btn-inner">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <span>Tap to play</span>
+                        </div>
+                    </div>
+                </div>
+                <a id="openVideoLink" class="video-open-link" href="#" target="_blank" rel="noopener">Open video in new tab</a>
             </div>
             <p id="videoNotice" style="margin-top:10px;color:var(--muted)">Demo media restored — playing from project root.</p>
         </div>
@@ -538,6 +560,55 @@
 
             video.addEventListener('loadedmetadata', () => {
                 console.log('Video metadata loaded', video.currentSrc);
+            });
+            // Mobile tap-to-play handling: try playing on user tap and report detailed errors
+            const playBtn = document.getElementById('videoPlayBtn');
+            const openLink = document.getElementById('openVideoLink');
+            function updateOpenLink() {
+                try { openLink.href = video.currentSrc || srcEl.src || '#'; } catch(e) { openLink.href = '#'; }
+            }
+            updateOpenLink();
+
+            if (playBtn) {
+                playBtn.addEventListener('click', async (ev) => {
+                    ev.preventDefault(); ev.stopPropagation();
+                    playBtn.classList.add('show');
+                    try {
+                        updateOpenLink();
+                        const playPromise = video.play();
+                        if (playPromise !== undefined) {
+                            await playPromise;
+                        }
+                        // hide the overlay when playing
+                        playBtn.classList.remove('show');
+                    } catch (err) {
+                        console.warn('Playback failed', err);
+                        if (notice) notice.textContent = 'Playback prevented: ' + (err && err.message ? err.message : String(err));
+                        // if playback blocked, offer the open link
+                        updateOpenLink();
+                    }
+                });
+            }
+
+            // Map HTMLMediaElement error codes to readable messages
+            function mediaErrorMessage(err) {
+                if (!err) return 'Unknown error';
+                const code = err.code;
+                switch(code) {
+                    case 1: return 'MEDIA_ERR_ABORTED: fetching process aborted by user.';
+                    case 2: return 'MEDIA_ERR_NETWORK: network error occurred while fetching media.';
+                    case 3: return 'MEDIA_ERR_DECODE: decoding error; format may not be supported.';
+                    case 4: return 'MEDIA_ERR_SRC_NOT_SUPPORTED: media format not supported or CORS issue.';
+                    default: return 'Unknown media error code: ' + code;
+                }
+            }
+
+            video.addEventListener('error', (ev) => {
+                const e = video.error;
+                const msg = mediaErrorMessage(e);
+                console.warn('Video error', e, video.currentSrc, msg);
+                if (notice) notice.textContent = 'Video error: ' + msg + ' — open in new tab to inspect.';
+                updateOpenLink();
             });
         })();
     </script>
