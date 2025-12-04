@@ -373,10 +373,10 @@
             
             <div class="video-container">
                 <div class="video-wrapper">
-                    <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" preload="metadata">
+                    <video id="demoVideo" controls playsinline webkit-playsinline controlslist="nodownload" preload="metadata" crossorigin="anonymous">
                         <!-- Multiple formats for better compatibility -->
-                        <source id="mp4Source" src="System.mp4" type="video/mp4">
-                        <source id="webmSource" src="System.webm" type="video/webm">
+                        <source id="mp4Source" src="System.mp4" type="video/mp4; codecs='avc1.42E01E, mp4a.40.2'">
+                        <source id="webmSource" src="System.webm" type="video/webm; codecs='vp9, opus'">
                         Your browser does not support the video tag.
                     </video>
                     
@@ -395,11 +395,11 @@
             <div class="video-fallback">
                 <p style="margin-bottom:10px;color:var(--muted)">If video doesn't play, try these options:</p>
                 <div class="fallback-buttons">
-                    <a id="directVideoLink" href="System.mp4" class="btn" target="_blank" rel="noopener" style="background:var(--primary);">
-                        <span style="margin-right:8px">▶️</span> Open Video in New Tab
+                    <a id="directVideoLink" href="System.mp4" class="btn" target="_blank" rel="noopener" style="background:var(--primary);color:#fff;">
+                        <span style="margin-right:8px">▶️</span> Open in Player
                     </a>
-                    <a id="downloadVideoLink" href="System.mp4" class="btn" download style="background:var(--accent);color:#000;">
-                        <span style="margin-right:8px">📥</span> Download Video File
+                    <a id="downloadVideoLink" href="System.mp4" class="btn" download style="background:var(--accent);color:#000;font-weight:600;">
+                        <span style="margin-right:8px">📥</span> Download File
                     </a>
                 </div>
             </div>
@@ -660,7 +660,7 @@
         })();
 
         // ===========================
-        // VIDEO PLAYBACK FIXES FOR MOBILE
+        // VIDEO PLAYBACK FIXES FOR MOBILE (No Server Config Required)
         // ===========================
         (function() {
             const video = document.getElementById('demoVideo');
@@ -671,54 +671,56 @@
             
             if (!video) return;
             
-            // Function to check video availability
-            async function checkVideoAvailability() {
-                const videoPaths = [
-                    'System.mp4',
-                    '/System.mp4',
-                    './System.mp4',
-                    'videos/System.mp4',
-                    'media/System.mp4',
-                    '../System.mp4'
-                ];
-                
-                for (const path of videoPaths) {
-                    try {
-                        const response = await fetch(path, { method: 'HEAD' });
-                        if (response.ok) {
-                            console.log(`Video found at: ${path}`);
-                            
-                            // Update video sources
-                            const mp4Source = document.getElementById('mp4Source');
-                            if (mp4Source) mp4Source.src = path;
-                            
-                            // Update direct links
-                            if (directLink) directLink.href = path;
-                            if (downloadLink) downloadLink.href = path;
-                            
-                            // Reload video element
-                            video.src = '';
-                            video.load();
-                            
-                            if (notice) {
-                                notice.textContent = 'Video ready. Tap play button to start.';
-                                notice.classList.remove('video-error');
-                            }
-                            
-                            return true;
-                        }
-                    } catch (error) {
-                        console.log(`Video not found at: ${path}`);
+            // Function to load video file directly
+            async function loadVideoFile() {
+                try {
+                    const response = await fetch('System.mp4');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
+                    
+                    const blob = await response.blob();
+                    console.log(`Video loaded: ${blob.size} bytes`);
+                    
+                    // Create blob URL
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    // Set video source directly
+                    const mp4Source = document.getElementById('mp4Source');
+                    if (mp4Source) {
+                        mp4Source.src = blobUrl;
+                    }
+                    
+                    // Also set as main video src
+                    video.src = blobUrl;
+                    video.load();
+                    
+                    // Update fallback links
+                    if (directLink) directLink.href = blobUrl;
+                    if (downloadLink) {
+                        downloadLink.href = blobUrl;
+                        downloadLink.download = 'System.mp4';
+                    }
+                    
+                    if (notice) {
+                        notice.textContent = '✓ Video ready. Tap the play button to start.';
+                        notice.classList.remove('video-error');
+                        notice.style.background = 'rgba(34, 211, 238, 0.1)';
+                        notice.style.borderColor = 'rgba(34, 211, 238, 0.3)';
+                        notice.style.color = '#22d3ee';
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Failed to load video:', error);
+                    
+                    if (notice) {
+                        notice.textContent = '⚠ Video file not found. Make sure System.mp4 is in the same folder as index.html.';
+                        notice.classList.add('video-error');
+                    }
+                    
+                    return false;
                 }
-                
-                // If no video found
-                if (notice) {
-                    notice.textContent = 'Video file not found. Please check the file path or use the download links.';
-                    notice.classList.add('video-error');
-                }
-                
-                return false;
             }
             
             // Mobile detection
@@ -728,89 +730,65 @@
             
             // Mobile-specific setup
             if (isMobileDevice()) {
-                // Force mobile-friendly attributes
+                // Ensure mobile attributes
                 video.setAttribute('playsinline', '');
                 video.setAttribute('webkit-playsinline', '');
                 video.setAttribute('x-webkit-airplay', 'allow');
-                
-                // Remove muted for better mobile experience
                 video.removeAttribute('muted');
-                
-                // Preload metadata for faster start
                 video.preload = 'metadata';
                 
-                // Update notice for mobile
                 if (notice) {
-                    notice.textContent = 'Tap play button to start. Tap video for full screen.';
+                    notice.textContent = 'Loading video... Please wait.';
                 }
             }
             
             // Play video function
             async function playVideo() {
                 try {
-                    // Hide overlay
                     overlay.classList.add('hidden');
-                    
-                    // Show controls
                     video.controls = true;
-                    
-                    // Request fullscreen on mobile for better experience
-                    if (isMobileDevice() && video.requestFullscreen) {
-                        try {
-                            await video.requestFullscreen().catch(err => {
-                                console.log('Fullscreen request denied:', err);
-                            });
-                        } catch (err) {
-                            console.log('Fullscreen not available');
-                        }
-                    }
                     
                     // Try to play
                     const playPromise = video.play();
                     
                     if (playPromise !== undefined) {
                         await playPromise;
-                        // Success
                         if (notice) {
-                            notice.textContent = 'Video playing. Tap video for controls.';
+                            notice.textContent = '▶ Video playing. Tap for controls.';
                             notice.classList.remove('video-error');
                         }
                     }
                 } catch (error) {
                     console.error('Playback error:', error);
                     
-                    // Show error message
                     if (notice) {
-                        let errorMsg = 'Playback failed. ';
+                        let errorMsg = '❌ Playback failed. ';
                         
                         if (error.name === 'NotAllowedError') {
-                            errorMsg += 'Autoplay blocked by browser. Please tap the video controls directly.';
+                            errorMsg = '⚠ Tap the play button in the video controls to start playback.';
                         } else if (error.name === 'NotSupportedError') {
-                            errorMsg += 'Video format not supported. Please use the download links.';
+                            errorMsg = '❌ Video format not supported by your browser. Try downloading the file.';
                         } else {
-                            errorMsg += error.message || 'Unknown error.';
+                            errorMsg += error.message;
                         }
                         
                         notice.textContent = errorMsg;
                         notice.classList.add('video-error');
                     }
                     
-                    // Show overlay again
                     overlay.classList.remove('hidden');
                 }
             }
             
-            // Overlay click handler
+            // Event listeners
             overlay.addEventListener('click', playVideo);
             
-            // Video click handler (for when controls are shown)
             video.addEventListener('click', function(e) {
                 if (!video.controls) {
                     playVideo();
                 }
             });
             
-            // Handle video events
             video.addEventListener('play', function() {
                 overlay.classList.add('hidden');
             });
@@ -824,7 +802,7 @@
             video.addEventListener('ended', function() {
                 overlay.classList.remove('hidden');
                 if (notice) {
-                    notice.textContent = 'Video finished. Tap to play again.';
+                    notice.textContent = '✓ Video finished. Tap to play again.';
                 }
             });
             
@@ -832,34 +810,25 @@
                 console.error('Video error:', video.error);
                 
                 if (notice) {
-                    let errorDetail = 'Video error: ';
-                    switch(video.error.code) {
-                        case 1: errorDetail += 'Aborted'; break;
-                        case 2: errorDetail += 'Network error'; break;
-                        case 3: errorDetail += 'Decoding error'; break;
-                        case 4: errorDetail += 'Format not supported'; break;
-                        default: errorDetail += 'Unknown error';
+                    let errorDetail = '❌ Video error: ';
+                    if (video.error) {
+                        switch(video.error.code) {
+                            case 1: errorDetail += 'Aborted'; break;
+                            case 2: errorDetail += 'Network error - file may be corrupted'; break;
+                            case 3: errorDetail += 'Decoding failed - codec not supported'; break;
+                            case 4: errorDetail += 'Format not supported'; break;
+                            default: errorDetail += 'Unknown error';
+                        }
                     }
-                    
-                    notice.textContent = errorDetail + '. Please try the download links.';
+                    notice.textContent = errorDetail + '. Try downloading the file instead.';
                     notice.classList.add('video-error');
                 }
                 
                 overlay.classList.remove('hidden');
             });
             
-            // Update links when video source changes
-            video.addEventListener('loadedmetadata', function() {
-                if (video.currentSrc && directLink) {
-                    directLink.href = video.currentSrc;
-                    downloadLink.href = video.currentSrc;
-                }
-            });
-            
-            // Check video availability after DOM is ready
-            setTimeout(() => {
-                checkVideoAvailability();
-            }, 1000);
+            // Load video when page is ready
+            loadVideoFile();
             
         })();
     </script>
