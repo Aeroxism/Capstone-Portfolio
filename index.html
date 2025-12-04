@@ -63,6 +63,18 @@
         .nav ul { list-style: none; display: flex; gap: 18px; padding: 0; margin: 0; }
         .nav a { color: var(--text); font-weight: 500; opacity: 0.9; }
         .nav a:hover { color: white; opacity: 1; }
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            align-items: center;
+            gap: 8px;
+        }
+        .menu-toggle svg { width: 20px; height: 20px; display: block; }
 
         /* Hero */
         .hero {
@@ -124,6 +136,13 @@
             .hero { grid-template-columns: 1fr; }
             .grid-2, .grid-3, .kpi { grid-template-columns: 1fr; }
             .list { columns: 1; }
+            .nav { padding: 10px 16px; }
+            .nav ul { display: none; position: absolute; right: 16px; top: 64px; background: rgba(11,14,18,0.95); border: 1px solid var(--border); border-radius: 10px; padding: 12px; flex-direction: column; gap: 8px; width: calc(100% - 40px); max-width: 360px; box-shadow: var(--shadow); }
+            .nav.open ul { display: flex; }
+            .menu-toggle { display: inline-flex; }
+            .brand { gap: 10px; }
+            header { position: sticky; }
+            .nav a { padding: 8px 6px; }
         }
     </style>
 </head>
@@ -134,6 +153,11 @@
                 <img id="qcuLogo" src="qcu.png" alt="QCU Logo" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border);object-fit:cover;background:#fff" />
                 <span>Capstone</span>
             </div>
+            <button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 6h18M3 12h18M3 18h18"></path>
+                </svg>
+            </button>
             <ul>
                 <li><a href="#overview">Overview</a></li>
                 <li><a href="#features">Features</a></li>
@@ -397,6 +421,32 @@
                 h.querySelector('span').textContent = open ? '–' : '+';
             });
         });
+
+        // Mobile menu toggle (for small screens)
+        (function(){
+            const menuToggle = document.querySelector('.menu-toggle');
+            const nav = document.querySelector('.nav');
+            if (!menuToggle || !nav) return;
+            menuToggle.addEventListener('click', (e) => {
+                const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
+                menuToggle.setAttribute('aria-expanded', String(!expanded));
+                nav.classList.toggle('open');
+            });
+            // close menu when a link is clicked
+            nav.querySelectorAll('a[href^="#"]').forEach(a => {
+                a.addEventListener('click', () => {
+                    nav.classList.remove('open');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                });
+            });
+            // close when clicking outside
+            document.addEventListener('click', (ev) => {
+                if (!nav.contains(ev.target)) {
+                    nav.classList.remove('open');
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
 
         // PDF download using FileSaver.js (fetches only when user clicks)
         (function() {
