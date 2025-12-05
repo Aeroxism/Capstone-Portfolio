@@ -459,55 +459,26 @@
     </section>
 
     <!-- Demo Video - FIXED VERSION -->
-    <section id="demo">
-        <div class="card section-card">
-            <h2>System Demo</h2>
-            <p style="color:var(--muted)">Watch the walkthrough of the TALA LINK system.</p>
-            
-            <!-- Video Preview -->
-            <div class="video-container" id="videoPreview">
-                <div class="video-wrapper">
-                    <video class="video-preview" id="demoVideoPreview" preload="metadata" poster="thumbnail.jpg">
-                        <source src="System.mp4" type="video/mp4">
-                        <source src="mp4/System.mp4" type="video/mp4">
-                        <source src="videos/System.mp4" type="video/mp4">
-                        <source src="System.webm" type="video/webm">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="play-overlay">
-                        <i class="fas fa-play"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="videoNotice" class="video-notice">
-                Click the video preview above to watch the full demo
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button id="playVideoBtn" class="download-btn">
-                    <i class="fas fa-play"></i> Play Full Demo Video
-                </button>
-                <button id="playVideoModalBtn" class="download-btn secondary">
-                    <i class="fas fa-expand"></i> Open in Modal
-                </button>
-                <a href="System.mp4" class="download-btn secondary" download="TALA_LINK_Demo.mp4">
-                    <i class="fas fa-download"></i> Download Video
-                </a>
-            </div>
-            
-            <!-- Video info -->
-            <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
-                <p><strong>Video Information:</strong></p>
-                <ul style="margin-top: 8px; padding-left: 20px; color: var(--muted);">
-                    <li>Format: MP4 (H.264)</li>
-                    <li>Size: 42.3 MB</li>
-                    <li>Duration: 5:24 minutes</li>
-                    <li>Resolution: 1920x1080 (Full HD)</li>
-                </ul>
-            </div>
+   <section id="demo" class="section demo-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>System Demo Video</h2>
+            <p>Watch a demonstration of TALA LINK system functionalities and user interface</p>
         </div>
-    </section>
+        
+        <div class="video-container">
+            <video controls style="width: 100%; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                <source src="mp4/System.mp4" type="video/mp4">
+                <source src="mp4/System.mp4" type="video/webm">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <p><strong>Note:</strong> The video demonstrates the system's key modules including patient registration, scheduling interface, AI recommendations, and reporting features.</p>
+        </div>
+    </div>
+</section>
 
     <!-- Features -->
     <section id="features">
